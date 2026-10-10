@@ -1,0 +1,30 @@
+[
+ {
+  "code": "tna",
+  "name": "Canned tuna",
+  "items": 10,
+  "medianApe": 0.179,
+  "medianApeNaive": 0.225
+ },
+ {
+  "code": "bjc",
+  "name": "Bottled juices",
+  "items": 10,
+  "medianApe": 0.2,
+  "medianApeNaive": 0.372
+ },
+ {
+  "code": "lnd",
+  "name": "Laundry detergents",
+  "items": 10,
+  "medianApe": 0.19,
+  "medianApeNaive": 0.581
+ },
+ {
+  "code": "sdr",
+  "name": "Soft drinks",
+  "items": 10,
+  "medianApe": 0.685,
+  "medianApeNaive": 1.803
+ }
+]
