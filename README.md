@@ -7,7 +7,7 @@ eight years of real scanner data, then answers three questions with the uncertai
 - Should I run this promotion?
 - What are the best prices inside my limits?
 
-**Live demo:** https://YOUR-APP.vercel.app
+**Live demo:** https://pricing-lab-seven.vercel.app
 
 ![Change prices: move a price and see profit, revenue and units with their likely range](docs/screenshots/change-prices.png)
 
