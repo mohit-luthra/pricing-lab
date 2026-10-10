@@ -1,0 +1,20 @@
+[project]
+name = "pricinglab"
+version = "0.1.0"
+description = "Demand estimation and price/promo simulation on Dominick's scanner data"
+requires-python = ">=3.10"
+dependencies = ["duckdb>=1.0", "pandas>=2.0", "pyarrow>=15", "numpy", "statsmodels", "linearmodels", "numpyro>=0.15", "jax"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "src/pricinglab/sizes.py"]
+addopts = "--doctest-modules"

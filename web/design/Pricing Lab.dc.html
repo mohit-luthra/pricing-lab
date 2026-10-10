@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="engine.js"></script>
+<style>
+html,body{margin:0;background:#F4F3EF;color:#16181D;font-family:Geist,system-ui,sans-serif;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+*{box-sizing:border-box}
+a{color:#2F5BD3;text-underline-offset:2px}a:hover{color:#1D3E9E}
+button,input,select,textarea{font-family:inherit;color:inherit}
+button{cursor:pointer}button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #2F5BD3;outline-offset:2px}
+input[type=range]{accent-color:#16181D;width:100%;height:28px;margin:0;cursor:pointer}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+
+<header style="background:#16181D;color:#fff">
+  <div style="max-width:1440px;margin:0 auto;padding:0 20px;display:flex;align-items:stretch;gap:8px 28px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:10px;padding:14px 0 6px;white-space:nowrap">
+      <div aria-hidden="true" style="position:relative;width:24px;height:24px;border-radius:6px;background:#F4F3EF">
+        <div style="position:absolute;left:4px;right:4px;top:10px;height:4px;border-radius:2px;background:#C9D5F5"></div>
+        <div style="position:absolute;left:11px;top:5px;width:2.5px;height:14px;border-radius:2px;background:#2F5BD3"></div>
+      </div>
+      <span style="font:600 16px/1 Geist,sans-serif;letter-spacing:-.01em">Pricing Lab</span>
+    </div>
+    <nav role="tablist" aria-label="Sections" style="display:flex;gap:2px;overflow-x:auto;flex:1 1 480px;align-items:flex-end;padding-top:8px;scrollbar-width:none">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="6">
+        <button role="tab" aria-selected="{{ t.sel }}" onClick="{{ t.onClick }}" style="flex:none;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:0;border-radius:8px 8px 0 0;background:{{ t.bg }};color:{{ t.fg }};font:500 14px/1 Geist,sans-serif;white-space:nowrap"><span style="font:500 11px/1 'Geist Mono',monospace;opacity:.7">{{ t.num }}</span>{{ t.label }}</button>
+      </sc-for>
+    </nav>
+  </div>
+</header>
+
+<div style="border-bottom:1px solid #E2E0DA">
+  <div style="max-width:1440px;margin:0 auto;padding:12px 20px 14px;display:flex;gap:12px 20px;flex-wrap:wrap;align-items:flex-end">
+    <div role="group" aria-label="Category" style="display:flex;flex-direction:column;gap:6px;flex:1 1 600px;min-width:0">
+      <span style="font:500 11px/1.3 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#5F6368">Category</span>
+      <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px">
+        <sc-for list="{{ cats }}" as="c" hint-placeholder-count="4">
+          <button aria-pressed="{{ c.sel }}" onClick="{{ c.onClick }}" style="flex:1 0 168px;display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-height:52px;padding:8px 12px;border-radius:8px;border:1.5px solid {{ c.border }};background:{{ c.bg }};text-align:left">
+            <span style="font:600 14px/1.2 Geist,sans-serif;color:#16181D;white-space:nowrap">{{ c.name }}</span>
+            <span style="font:500 12px/1.2 Geist,sans-serif;color:{{ c.statusColor }};white-space:nowrap"><span aria-hidden="true">{{ c.glyph }}</span> {{ c.status }} · {{ c.miss }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+    <label style="flex:0 1 250px;display:flex;flex-direction:column;gap:6px;min-width:200px">
+      <span style="font:500 11px/1.3 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#5F6368">Store group</span>
+      <select value="{{ tier }}" onChange="{{ onTier }}" style="min-height:52px;padding:0 12px;border-radius:8px;border:1.5px solid #CFCCC4;background:#fff;font:500 14px Geist,sans-serif">
+        <sc-for list="{{ tierOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.v }}">{{ o.label }}</option></sc-for>
+      </select>
+    </label>
+  </div>
+</div>
+
+<sc-if value="{{ showWeak }}" hint-placeholder-val="{{ false }}">
+  <div role="alert" style="background:#FFF4D6;border-bottom:1px solid #E7CF8E">
+    <div style="max-width:1440px;margin:0 auto;padding:10px 20px;display:flex;gap:6px 10px;align-items:baseline;flex-wrap:wrap;font:14px/1.45 Geist,sans-serif;color:#3D2B00">
+      <b style="white-space:nowrap">◐ Direction only.</b><span style="flex:1 1 420px;text-wrap:pretty">{{ weakText }}</span><a href="#method" onClick="{{ goMethod }}" style="color:#3D2B00;font-weight:600;white-space:nowrap">How it works →</a>
+    </div>
+  </div>
+</sc-if>
+
+<main style="max-width:1440px;width:100%;margin:0 auto;padding:20px;flex:1">
+
+<sc-if value="{{ showLoading }}" hint-placeholder-val="{{ false }}">
+  <div aria-busy="true" style="display:flex;flex-direction:row-reverse;flex-wrap:wrap;gap:16px">
+    <div style="flex:2.4 1 520px;display:flex;flex-direction:column;gap:16px">
+      <div style="height:64px;border-radius:10px;background:#E9E7E1"></div>
+      <div style="height:180px;border-radius:10px;background:#ECEAE4"></div>
+      <div style="height:280px;border-radius:10px;background:#ECEAE4"></div>
+    </div>
+    <div style="flex:1 1 320px;display:flex;flex-direction:column;gap:10px">
+      <div style="font:500 14px Geist;color:#5F6368">{{ loadingText }}</div>
+      <div style="height:120px;border-radius:10px;background:#ECEAE4"></div>
+      <div style="height:120px;border-radius:10px;background:#ECEAE4"></div>
+      <div style="height:120px;border-radius:10px;background:#ECEAE4"></div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ showError }}" hint-placeholder-val="{{ false }}">
+  <div role="alert" style="max-width:640px;margin:40px auto;padding:20px;border-radius:10px;border:1.5px solid #B4361F;background:#FBE5E0;display:flex;flex-direction:column;gap:12px">
+    <b style="font:600 16px Geist">✕ {{ errorTitle }}</b>
+    <span style="font:14px/1.5 Geist">{{ errorText }}</span>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button onClick="{{ retryLoad }}" style="min-height:44px;padding:0 18px;border-radius:8px;border:0;background:#16181D;color:#fff;font:600 14px Geist">Try again</button><button onClick="{{ backToTuna }}" style="min-height:44px;padding:0 18px;border-radius:8px;border:1.5px solid #16181D;background:#fff;font:600 14px Geist">Open Canned tuna instead</button></div>
+  </div>
+</sc-if>
+
+<!-- 1 CHANGE PRICES -->
+<sc-if value="{{ show.prices }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="01 Change prices" style="display:flex;flex-direction:row-reverse;flex-wrap:wrap;gap:16px;align-items:flex-start">
+  <section aria-label="Results" style="flex:2.4 1 520px;min-width:0;position:sticky;top:12px;display:flex;flex-direction:column;gap:14px">
+    <div role="status" aria-live="polite" style="display:flex;gap:10px 16px;align-items:center;flex-wrap:wrap;padding:14px 16px;border-radius:10px;border:1.5px solid {{ pv.fg }};background:{{ pv.bg }}">
+      <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 14px 5px 5px;border-radius:999px;background:{{ pv.fg }};color:#fff;font:600 14px/1.2 Geist,sans-serif;white-space:nowrap"><span aria-hidden="true" style="display:inline-flex;width:24px;height:24px;border-radius:50%;background:#fff;color:{{ pv.fg }};align-items:center;justify-content:center;font-size:13px;font-weight:700">{{ pv.glyph }}</span>{{ pv.label }}</div>
+      <div style="flex:1 1 300px;font:400 14px/1.5 Geist,sans-serif;text-wrap:pretty"><b>{{ pv.title }}</b> {{ pv.reason }}</div>
+    </div>
+
+    <sc-if value="{{ p.changed }}" hint-placeholder-val="{{ true }}">
+      <div style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:18px;display:flex;flex-wrap:wrap;gap:20px 32px">
+        <div style="flex:1 1 300px;min-width:0">
+          <div style="font:500 11px/1.3 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#5F6368">Profit change · {{ p.horizonLabel }}</div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px;color:{{ p.hero.color }}"><span aria-hidden="true" style="font-size:18px">{{ p.hero.arrow }}</span><span style="font:600 42px/1 Geist,sans-serif;letter-spacing:-.02em">{{ p.hero.mid }}</span></div>
+          <div title="{{ p.hero.title }}" style="position:relative;height:20px;margin:12px 0 6px">
+            <div style="position:absolute;left:0;right:0;top:9px;height:2px;background:#E2E0DA"></div>
+            <div style="position:absolute;top:4px;height:12px;left:{{ p.hero.bar.l }};width:{{ p.hero.bar.w }};background:#C9D5F5;border-radius:3px"></div>
+            <div style="position:absolute;top:0;bottom:0;left:{{ p.hero.bar.z }};border-left:1.5px dashed #16181D"></div>
+            <div style="position:absolute;top:0;height:20px;width:3px;margin-left:-1.5px;left:{{ p.hero.bar.m }};background:#2F5BD3;border-radius:2px"></div>
+          </div>
+          <div style="font:500 14px/1.4 Geist,sans-serif">Likely {{ p.hero.lo }} to {{ p.hero.hi }}</div>
+          <div style="font:13px/1.4 Geist,sans-serif;color:#5F6368">Today {{ p.hero.base }} · dashed line = no change</div>
+        </div>
+        <div style="flex:0 1 200px;min-width:160px">
+          <div style="font:500 11px/1.3 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#5F6368">Chance profit improves</div>
+          <div style="font:600 42px/1 Geist,sans-serif;letter-spacing:-.02em;margin-top:6px">{{ p.chance }}</div>
+          <div aria-hidden="true" style="height:6px;border-radius:3px;background:#E2E0DA;margin:14px 0 8px;overflow:hidden"><div style="height:100%;width:{{ p.chance }};background:#16181D"></div></div>
+          <div style="font:13px/1.4 Geist,sans-serif;color:#5F6368">{{ p.chanceSub }}</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:14px">
+        <sc-for list="{{ p.kpis }}" as="k" hint-placeholder-count="2">
+          <div style="flex:1 1 240px;min-width:0;background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:14px 16px">
+            <div style="font:500 11px/1.3 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#5F6368">{{ k.label }}</div>
+            <div style="display:flex;align-items:baseline;gap:6px;margin-top:6px;color:{{ k.color }}"><span aria-hidden="true" style="font-size:13px">{{ k.arrow }}</span><span style="font:600 26px/1 Geist,sans-serif;letter-spacing:-.01em">{{ k.mid }}</span></div>
+            <div title="{{ k.title }}" style="position:relative;height:16px;margin:10px 0 4px">
+              <div style="position:absolute;left:0;right:0;top:7px;height:2px;background:#E2E0DA"></div>
+              <div style="position:absolute;top:3px;height:10px;left:{{ k.bar.l }};width:{{ k.bar.w }};background:#C9D5F5;border-radius:3px"></div>
+              <div style="position:absolute;top:0;bottom:0;left:{{ k.bar.z }};border-left:1.5px dashed #16181D"></div>
+              <div style="position:absolute;top:0;height:16px;width:3px;margin-left:-1.5px;left:{{ k.bar.m }};background:#2F5BD3;border-radius:2px"></div>
+            </div>
+            <div style="font:500 13px/1.4 Geist,sans-serif">Likely {{ k.lo }} to {{ k.hi }}</div>
+            <div style="font:13px/1.4 Geist,sans-serif;color:#5F6368">Today {{ k.base }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;overflow:hidden">
+        <div style="padding:12px 16px;border-bottom:1px solid #E2E0DA;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline"><b style="font:600 15px Geist">Product by product</b><span style="font:13px Geist;color:#5F6368">Middle values · {{ p.horizonLabel }}</span></div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;min-width:600px;border-collapse:collapse;font:13.5px/1.35 Geist,sans-serif">
+            <thead><tr style="text-align:left;font:500 11px 'Geist Mono',monospace;letter-spacing:.05em;text-transform:uppercase;color:#5F6368">
+              <th style="padding:8px 16px;position:sticky;left:0;background:#fff;font-weight:500">Product</th><th style="padding:8px;text-align:right;font-weight:500">Price</th><th style="padding:8px;text-align:right;font-weight:500">Units</th><th style="padding:8px;text-align:right;font-weight:500">Its profit</th><th style="padding:8px 16px 8px 12px;font-weight:500">To break even</th></tr></thead>
+            <tbody>
+              <sc-for list="{{ p.rows }}" as="r" hint-placeholder-count="10">
+                <tr style="border-top:1px solid #EEECE7">
+                  <td style="padding:8px 16px;position:sticky;left:0;background:{{ r.bg }};font-weight:{{ r.weight }};min-width:180px">{{ r.name }}</td>
+                  <td style="padding:8px;text-align:right;background:{{ r.bg }};white-space:nowrap">{{ r.price }}</td>
+                  <td style="padding:8px;text-align:right;background:{{ r.bg }};color:{{ r.unitsColor }};white-space:nowrap">{{ r.units }}</td>
+                  <td style="padding:8px;text-align:right;background:{{ r.bg }};color:{{ r.profitColor }};white-space:nowrap">{{ r.profit }}</td>
+                  <td style="padding:8px 16px 8px 12px;background:{{ r.bg }};color:{{ r.noteColor }}">{{ r.note }}</td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:12px 16px;border-top:1px solid #E2E0DA;font:13px/1.5 Geist;color:#5F6368;text-wrap:pretty">Products you didn't move still change because shoppers switch between them. Baseline is a normal week at regular prices with no promotion running.</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ p.empty }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#fff;border:1.5px dashed #CFCCC4;border-radius:10px;padding:48px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+        <div aria-hidden="true" style="position:relative;width:120px;height:20px"><div style="position:absolute;left:0;right:0;top:9px;height:2px;background:#E2E0DA"></div><div style="position:absolute;left:30px;width:60px;top:4px;height:12px;border-radius:3px;background:#C9D5F5"></div><div style="position:absolute;left:58px;top:0;width:3px;height:20px;border-radius:2px;background:#2F5BD3"></div></div>
+        <b style="font:600 20px/1.3 Geist">Move a price to see the effect</b>
+        <span style="font:14px/1.5 Geist;color:#5F6368;max-width:420px;text-wrap:pretty">Use the slider or the − / + buttons on any product. Profit, revenue and units update as you go, each with its likely range across 400 runs.</span>
+      </div>
+    </sc-if>
+  </section>
+
+  <section aria-label="Prices" style="flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:10px">
+    <div style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="font:600 15px Geist">The shelf</b><button onClick="{{ p.reset }}" disabled="{{ p.resetDisabled }}" style="min-height:36px;padding:0 12px;border-radius:8px;border:1.5px solid {{ p.resetBorder }};background:#fff;color:{{ p.resetColor }};font:600 13px Geist">↺ Reset prices</button></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><span style="font:500 11px/1.3 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#5F6368">Over</span>
+        <div role="radiogroup" aria-label="Time horizon" style="display:flex;border:1.5px solid #CFCCC4;border-radius:8px;overflow:hidden;background:#fff">
+          <sc-for list="{{ p.horizons }}" as="h" hint-placeholder-count="4"><button role="radio" aria-checked="{{ h.sel }}" onClick="{{ h.onClick }}" style="flex:1 1 0;min-height:40px;padding:0 6px;border:0;border-left:1px solid #E2E0DA;background:{{ h.bg }};color:{{ h.fg }};font:500 13px Geist;white-space:nowrap">{{ h.label }}</button></sc-for>
+        </div>
+      </div>
+      <sc-if value="{{ p.hasLines }}" hint-placeholder-val="{{ false }}">
+        <label style="display:flex;gap:10px;align-items:center;min-height:32px;font:14px/1.3 Geist;cursor:pointer"><input type="checkbox" checked="{{ p.link }}" onChange="{{ p.toggleLink }}" style="width:18px;height:18px;accent-color:#16181D;flex:none">Move products that share a price together</label>
+      </sc-if>
+    </div>
+    <sc-for list="{{ p.cards }}" as="c" hint-placeholder-count="10">
+      <div style="background:{{ c.bg }};border:1.5px solid {{ c.border }};border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><span style="font:500 14px/1.3 Geist">{{ c.name }}</span><span style="font:500 12.5px 'Geist Mono',monospace;white-space:nowrap;color:{{ c.chgColor }}">{{ c.chg }}</span></div>
+        <sc-if value="{{ c.linked }}" hint-placeholder-val="{{ false }}"><span style="font:12px Geist;color:#5F6368">⛓ {{ c.linkText }}</span></sc-if>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button aria-label="{{ c.minusLabel }}" onClick="{{ c.minus }}" style="width:44px;height:44px;flex:none;border-radius:8px;border:1.5px solid #CFCCC4;background:#fff;font:500 20px/1 Geist">−</button>
+          <span style="font:600 24px/1 Geist;letter-spacing:-.01em;min-width:76px;text-align:center">{{ c.price }}</span>
+          <button aria-label="{{ c.plusLabel }}" onClick="{{ c.plus }}" style="width:44px;height:44px;flex:none;border-radius:8px;border:1.5px solid #CFCCC4;background:#fff;font:500 20px/1 Geist">+</button>
+          <span style="margin-left:auto;text-align:right;font:12.5px/1.35 Geist;color:#5F6368">Today {{ c.was }}<br>{{ c.costLine }}</span>
+        </div>
+        <div style="position:relative">
+          <div aria-hidden="true" style="position:absolute;left:8px;right:8px;top:24px;height:6px">
+            <div style="position:absolute;top:0;height:6px;left:{{ c.bandL }};width:{{ c.bandW }};background:#DCDAD3;border-radius:3px"></div>
+            <div style="position:absolute;top:-3px;height:12px;width:2px;left:{{ c.todayL }};background:#5F6368"></div>
+          </div>
+          <input type="range" min="{{ c.lo }}" max="{{ c.hi }}" step="0.01" value="{{ c.value }}" onChange="{{ c.slide }}" aria-label="{{ c.sliderLabel }}" aria-valuetext="{{ c.price }}">
+        </div>
+        <div style="display:flex;justify-content:space-between;gap:8px;font:12px/1.3 Geist;color:#5F6368;margin-top:4px"><span>{{ c.loStr }}</span><span style="text-align:center">{{ c.histLine }}</span><span>{{ c.hiStr }}</span></div>
+        <sc-if value="{{ c.off }}" hint-placeholder-val="{{ false }}"><div role="note" style="padding:6px 10px;border-radius:6px;background:#FFF4D6;border:1px solid #E7CF8E;font:13px/1.4 Geist;color:#3D2B00">⚠ Outside anything charged in the last two years: a guess, not a forecast.</div></sc-if>
+        <sc-if value="{{ c.below }}" hint-placeholder-val="{{ false }}"><div role="note" style="padding:6px 10px;border-radius:6px;background:#FBE5E0;border:1px solid #E5A99B;font:13px/1.4 Geist;color:#6B1D0E">✕ Below its {{ c.cost }} cost. Every unit sold loses money.</div></sc-if>
+      </div>
+    </sc-for>
+  </section>
+</div>
+</sc-if>
+
+<!-- 2 PLAN A PROMOTION -->
+<sc-if value="{{ show.promo }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="02 Plan a promotion" style="display:flex;flex-direction:row-reverse;flex-wrap:wrap;gap:16px;align-items:flex-start">
+  <section aria-label="Results" style="flex:2.4 1 520px;min-width:0;position:sticky;top:12px;display:flex;flex-direction:column;gap:14px">
+    <div role="status" aria-live="polite" style="display:flex;gap:10px 16px;align-items:center;flex-wrap:wrap;padding:14px 16px;border-radius:10px;border:1.5px solid {{ mv.fg }};background:{{ mv.bg }}">
+      <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 14px 5px 5px;border-radius:999px;background:{{ mv.fg }};color:#fff;font:600 14px/1.2 Geist,sans-serif;white-space:nowrap"><span aria-hidden="true" style="display:inline-flex;width:24px;height:24px;border-radius:50%;background:#fff;color:{{ mv.fg }};align-items:center;justify-content:center;font-size:13px;font-weight:700">{{ mv.glyph }}</span>{{ mv.label }}</div>
+      <div style="flex:1 1 300px;font:400 14px/1.5 Geist,sans-serif;text-wrap:pretty">{{ mv.reason }}</div>
+    </div>
+    <sc-if value="{{ m.belowCost }}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding:12px 16px;border-radius:10px;background:#FBE5E0;border:1.5px solid #B4361F;font:14px/1.45 Geist;color:#6B1D0E"><b>✕ Sells below cost.</b> {{ m.belowText }}</div></sc-if>
+    <div style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:18px;display:flex;flex-wrap:wrap;gap:20px 32px">
+      <div style="flex:1 1 300px;min-width:0">
+        <div style="font:500 11px/1.3 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#5F6368">Net profit · whole promotion</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px;color:{{ m.hero.color }}"><span aria-hidden="true" style="font-size:18px">{{ m.hero.arrow }}</span><span style="font:600 42px/1 Geist,sans-serif;letter-spacing:-.02em">{{ m.hero.mid }}</span></div>
+        <div title="{{ m.hero.title }}" style="position:relative;height:20px;margin:12px 0 6px">
+          <div style="position:absolute;left:0;right:0;top:9px;height:2px;background:#E2E0DA"></div>
+          <div style="position:absolute;top:4px;height:12px;left:{{ m.hero.bar.l }};width:{{ m.hero.bar.w }};background:#C9D5F5;border-radius:3px"></div>
+          <div style="position:absolute;top:0;bottom:0;left:{{ m.hero.bar.z }};border-left:1.5px dashed #16181D"></div>
+          <div style="position:absolute;top:0;height:20px;width:3px;margin-left:-1.5px;left:{{ m.hero.bar.m }};background:#2F5BD3;border-radius:2px"></div>
+        </div>
+        <div style="font:500 14px/1.4 Geist,sans-serif">Likely {{ m.hero.lo }} to {{ m.hero.hi }}</div>
+        <div style="font:13px/1.4 Geist,sans-serif;color:#5F6368">After the dip and sales lost on other products</div>
+      </div>
+      <div style="flex:0 1 200px;min-width:160px;display:flex;flex-direction:column;gap:14px">
+        <div><div style="font:500 11px/1.3 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#5F6368">Chance it makes money</div><div style="font:600 30px/1 Geist;margin-top:6px">{{ m.chance }}</div><div style="font:13px Geist;color:#5F6368;margin-top:4px">of 400 runs</div></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:14px">
+      <div style="flex:1 1 240px;background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:14px 16px">
+        <div style="font:500 11px/1.3 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#5F6368">Sales lift in a promotion week</div>
+        <div style="display:flex;align-items:baseline;gap:6px;margin-top:6px;color:{{ m.liftColor }}"><span aria-hidden="true" style="font-size:13px">{{ m.liftArrow }}</span><span style="font:600 26px/1 Geist">{{ m.lift }}</span></div>
+        <div style="font:500 13px/1.4 Geist;margin-top:8px">Likely {{ m.liftLo }} to {{ m.liftHi }}</div>
+        <div style="font:13px/1.4 Geist;color:#5F6368">versus a normal week</div>
+      </div>
+      <div style="flex:1 1 240px;background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:14px 16px">
+        <div style="font:500 11px/1.3 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#5F6368">Supplier funding to break even</div>
+        <div style="font:600 26px/1 Geist;margin-top:6px">{{ m.need }}</div>
+        <div style="font:500 13px/1.4 Geist;margin-top:8px">{{ m.needSub }}</div>
+        <div style="font:13px/1.4 Geist;color:#5F6368">{{ m.liftNeed }}</div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:16px">
+      <div style="display:flex;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;align-items:baseline"><b style="font:600 15px Geist">Where the profit comes from and goes</b>
+        <div style="display:flex;gap:14px;font:12.5px Geist;color:#5F6368;flex-wrap:wrap"><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:14px;height:10px;background:#2F5BD3;border-radius:2px"></span>Gain (middle)</span><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:14px;height:10px;background:#D9705A;border-radius:2px"></span>Loss (middle)</span><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;border-top:2px solid #16181D"></span>Likely range</span></div></div>
+      <div style="display:flex;margin:14px 0 4px;font:11px 'Geist Mono',monospace;color:#5F6368"><div style="flex:0 0 150px"></div><div style="position:relative;flex:1;height:14px"><sc-for list="{{ m.ticks }}" as="t" hint-placeholder-count="5"><span style="position:absolute;left:{{ t.x }};transform:translateX(-50%);white-space:nowrap">{{ t.label }}</span></sc-for></div><div style="flex:0 0 84px"></div></div>
+      <div role="list" style="display:flex;flex-direction:column">
+        <sc-for list="{{ m.parts }}" as="r" hint-placeholder-count="4">
+          <div role="listitem" tabIndex="0" onMouseEnter="{{ r.on }}" onFocus="{{ r.on }}" onMouseLeave="{{ m.off }}" onBlur="{{ m.off }}" aria-label="{{ r.aria }}" style="display:flex;align-items:center;min-height:44px;border-top:{{ r.sep }};background:{{ r.hl }};border-radius:6px;cursor:default">
+            <div style="flex:0 0 150px;padding:0 8px;font:{{ r.font }};line-height:1.25">{{ r.label }}</div>
+            <div style="position:relative;flex:1;height:28px">
+              <sc-for list="{{ m.gridX }}" as="g" hint-placeholder-count="5"><div style="position:absolute;top:0;bottom:0;left:{{ g }};border-left:1px solid #EEECE7"></div></sc-for>
+              <div style="position:absolute;top:0;bottom:0;left:{{ m.zero }};border-left:1.5px solid #16181D"></div>
+              <div style="position:absolute;top:6px;height:16px;left:{{ r.bl }};width:{{ r.bw }};background:{{ r.fill }};border-radius:2px"></div>
+              <div style="position:absolute;top:13px;height:2px;left:{{ r.wl }};width:{{ r.ww }};background:#16181D"></div>
+              <div style="position:absolute;top:8px;height:12px;left:{{ r.wl }};border-left:2px solid #16181D"></div>
+              <div style="position:absolute;top:8px;height:12px;left:{{ r.wr }};border-left:2px solid #16181D"></div>
+            </div>
+            <div style="flex:0 0 84px;text-align:right;padding-right:8px;font:{{ r.font }};color:{{ r.color }};white-space:nowrap">{{ r.mid }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div aria-live="polite" style="margin-top:10px;padding:8px 12px;border-radius:6px;background:#F4F3EF;font:13.5px/1.4 Geist;min-height:36px">{{ m.readout }}</div>
+    </div>
+    <div style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;overflow:hidden">
+      <div style="padding:12px 16px;border-bottom:1px solid #E2E0DA"><b style="font:600 15px Geist">Units</b></div>
+      <table style="width:100%;border-collapse:collapse;font:14px/1.35 Geist">
+        <tbody><sc-for list="{{ m.units }}" as="u" hint-placeholder-count="4"><tr style="border-top:1px solid #EEECE7"><td style="padding:9px 16px;font-weight:{{ u.weight }}">{{ u.label }}</td><td style="padding:9px 16px;text-align:right;white-space:nowrap;font-weight:{{ u.weight }};color:{{ u.color }}">{{ u.value }}</td></tr></sc-for></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-label="The promotion" style="flex:1 1 320px;min-width:0;background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:18px">
+    <b style="font:600 15px Geist">The promotion</b>
+    <label style="display:flex;flex-direction:column;gap:6px"><span style="font:500 13px Geist">Product</span>
+      <select value="{{ m.item }}" onChange="{{ m.setItem }}" style="min-height:44px;padding:0 10px;border-radius:8px;border:1.5px solid #CFCCC4;background:#fff;font:500 14px Geist">
+        <sc-for list="{{ m.itemOpts }}" as="o" hint-placeholder-count="10"><option value="{{ o.v }}">{{ o.label }}</option></sc-for>
+      </select>
+    </label>
+    <sc-if value="{{ m.hasLine }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <label style="display:flex;gap:10px;align-items:center;min-height:32px;font:14px/1.3 Geist;cursor:pointer"><input type="checkbox" checked="{{ m.wholeLine }}" onChange="{{ m.toggleLine }}" style="width:18px;height:18px;accent-color:#16181D;flex:none">{{ m.lineLabel }}</label>
+        <sc-if value="{{ m.lineCaution }}" hint-placeholder-val="{{ false }}"><div role="note" style="padding:8px 10px;border-radius:6px;background:#FFF4D6;border:1px solid #E7CF8E;font:13px/1.4 Geist;color:#3D2B00">⚠ {{ m.lineCautionText }}</div></sc-if>
+      </div>
+    </sc-if>
+    <label style="display:flex;flex-direction:column;gap:4px">
+      <span style="display:flex;justify-content:space-between;gap:8px;font:500 13px Geist"><span>Discount</span><span style="font:600 13px 'Geist Mono',monospace">{{ m.depthLabel }}</span></span>
+      <input type="range" min="2" max="50" step="1" value="{{ m.depth }}" onChange="{{ m.setDepth }}" aria-valuetext="{{ m.depthLabel }}">
+      <span style="display:flex;justify-content:space-between;font:13px Geist;color:#5F6368"><span>{{ m.before }} → <b style="color:#16181D">{{ m.after }}</b></span><span>2% to 50%</span></span>
+    </label>
+    <div style="display:flex;flex-direction:column;gap:6px"><span style="font:500 13px Geist">Length</span>
+      <div role="radiogroup" aria-label="Length" style="display:flex;border:1.5px solid #CFCCC4;border-radius:8px;overflow:hidden">
+        <sc-for list="{{ m.lengths }}" as="h" hint-placeholder-count="4"><button role="radio" aria-checked="{{ h.sel }}" onClick="{{ h.onClick }}" style="flex:1 1 0;min-height:40px;border:0;border-left:1px solid #E2E0DA;background:{{ h.bg }};color:{{ h.fg }};font:500 13px Geist;white-space:nowrap">{{ h.label }}</button></sc-for>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px"><span style="font:500 13px Geist">How shoppers find out</span>
+      <div role="radiogroup" aria-label="How shoppers find out" style="display:flex;flex-direction:column;gap:6px">
+        <sc-for list="{{ m.deals }}" as="h" hint-placeholder-count="3"><button role="radio" aria-checked="{{ h.sel }}" onClick="{{ h.onClick }}" style="display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 12px;border-radius:8px;border:1.5px solid {{ h.border }};background:#fff;text-align:left"><span aria-hidden="true" style="width:16px;height:16px;flex:none;border-radius:50%;border:2px solid #16181D;box-shadow:inset 0 0 0 3px #fff;background:{{ h.dot }}"></span><span style="display:flex;flex-direction:column"><span style="font:500 14px Geist">{{ h.label }}</span><span style="font:12.5px Geist;color:#5F6368">{{ h.sub }}</span></span></button></sc-for>
+      </div>
+    </div>
+    <label style="display:flex;flex-direction:column;gap:4px">
+      <span style="display:flex;justify-content:space-between;gap:8px;font:500 13px Geist"><span>Supplier pays</span><span style="font:600 13px 'Geist Mono',monospace">{{ m.fundLabel }}</span></span>
+      <input type="range" min="0" max="100" step="5" value="{{ m.funding }}" onChange="{{ m.setFunding }}" aria-valuetext="{{ m.fundLabel }}">
+      <span style="font:13px Geist;color:#5F6368">Share of the price cut the brand pays back</span>
+    </label>
+  </section>
+</div>
+</sc-if>
+
+<!-- 3 FIND BEST PRICES -->
+<sc-if value="{{ show.best }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="03 Find best prices" style="display:flex;flex-direction:row-reverse;flex-wrap:wrap;gap:16px;align-items:flex-start">
+  <section aria-label="Results" aria-busy="{{ o.busy }}" style="flex:2.4 1 520px;min-width:0;position:sticky;top:12px;display:flex;flex-direction:column;gap:14px">
+    <sc-if value="{{ o.ready }}" hint-placeholder-val="{{ false }}">
+      <div role="status" aria-live="polite" style="display:flex;gap:10px 16px;align-items:center;flex-wrap:wrap;padding:14px 16px;border-radius:10px;border:1.5px solid {{ ov.fg }};background:{{ ov.bg }}">
+        <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 14px 5px 5px;border-radius:999px;background:{{ ov.fg }};color:#fff;font:600 14px/1.2 Geist,sans-serif;white-space:nowrap"><span aria-hidden="true" style="display:inline-flex;width:24px;height:24px;border-radius:50%;background:#fff;color:{{ ov.fg }};align-items:center;justify-content:center;font-size:13px;font-weight:700">{{ ov.glyph }}</span>{{ ov.label }}</div>
+        <div style="flex:1 1 300px;font:400 14px/1.5 Geist,sans-serif;text-wrap:pretty">{{ ov.reason }}</div>
+        <span style="font:12.5px Geist;color:#5F6368;opacity:{{ o.busyOpacity }}">Updating…</span>
+      </div>
+      <sc-if value="{{ o.infeasible }}" hint-placeholder-val="{{ false }}">
+        <div role="alert" style="padding:20px;border-radius:10px;background:#FBE5E0;border:1.5px solid #B4361F;display:flex;flex-direction:column;gap:8px;color:#4D140A">
+          <b style="font:600 20px/1.3 Geist">These limits contradict each other</b>
+          <span style="font:14.5px/1.5 Geist;text-wrap:pretty">{{ o.conflict }}</span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px"><sc-for list="{{ o.fixes }}" as="f" hint-placeholder-count="2"><button onClick="{{ f.onClick }}" style="min-height:40px;padding:0 14px;border-radius:8px;border:1.5px solid #4D140A;background:#fff;font:600 13.5px Geist">{{ f.label }}</button></sc-for></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ o.leave }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:28px 20px;border-radius:10px;background:#fff;border:1.5px dashed #CFCCC4;display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center"><b style="font:600 20px Geist">Leave prices where they are</b><span style="font:14px/1.5 Geist;color:#5F6368;max-width:440px">No change inside your limits improves expected weekly profit. Widen the largest price move or lower the revenue to keep if you want the search to look further.</span></div>
+      </sc-if>
+      <sc-if value="{{ o.showKpis }}" hint-placeholder-val="{{ true }}">
+        <div style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:18px;display:flex;flex-wrap:wrap;gap:20px 32px;opacity:{{ o.dim }}">
+          <div style="flex:1 1 300px;min-width:0">
+            <div style="font:500 11px/1.3 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#5F6368">Weekly profit change</div>
+            <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px;color:{{ o.hero.color }}"><span aria-hidden="true" style="font-size:18px">{{ o.hero.arrow }}</span><span style="font:600 42px/1 Geist,sans-serif;letter-spacing:-.02em">{{ o.hero.mid }}</span></div>
+            <div title="{{ o.hero.title }}" style="position:relative;height:20px;margin:12px 0 6px">
+              <div style="position:absolute;left:0;right:0;top:9px;height:2px;background:#E2E0DA"></div>
+              <div style="position:absolute;top:4px;height:12px;left:{{ o.hero.bar.l }};width:{{ o.hero.bar.w }};background:#C9D5F5;border-radius:3px"></div>
+              <div style="position:absolute;top:0;bottom:0;left:{{ o.hero.bar.z }};border-left:1.5px dashed #16181D"></div>
+              <div style="position:absolute;top:0;height:20px;width:3px;margin-left:-1.5px;left:{{ o.hero.bar.m }};background:#2F5BD3;border-radius:2px"></div>
+            </div>
+            <div style="font:500 14px/1.4 Geist">Likely {{ o.hero.lo }} to {{ o.hero.hi }}</div>
+            <div style="font:13px/1.4 Geist;color:#5F6368">Today {{ o.hero.base }} a week</div>
+          </div>
+          <div style="flex:0 1 220px;min-width:170px;display:flex;flex-direction:column;gap:16px">
+            <div><div style="font:500 11px/1.3 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#5F6368">Weekly revenue change</div><div style="display:flex;gap:6px;align-items:baseline;margin-top:6px;color:{{ o.revColor }}"><span aria-hidden="true" style="font-size:12px">{{ o.revArrow }}</span><span style="font:600 26px/1 Geist">{{ o.rev }}</span></div><div style="font:13px Geist;color:#5F6368;margin-top:4px">{{ o.revShare }} of today</div></div>
+            <div><div style="font:500 11px/1.3 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#5F6368">Chance profit improves</div><div style="font:600 26px/1 Geist;margin-top:6px">{{ o.chance }}</div></div>
+          </div>
+        </div>
+      </sc-if>
+      <div style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;overflow:hidden;opacity:{{ o.dim }}">
+        <div style="padding:12px 16px;border-bottom:1px solid #E2E0DA;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center"><b style="font:600 15px Geist">Recommended prices</b><button onClick="{{ o.apply }}" disabled="{{ o.applyDisabled }}" style="min-height:40px;padding:0 16px;border-radius:8px;border:0;background:{{ o.applyBg }};color:#fff;font:600 14px Geist">Try these on the shelf →</button></div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;min-width:660px;border-collapse:collapse;font:13.5px/1.35 Geist">
+            <thead><tr style="text-align:left;font:500 11px 'Geist Mono',monospace;letter-spacing:.05em;text-transform:uppercase;color:#5F6368"><th style="padding:8px 4px 8px 16px;font-weight:500">Hold</th><th style="padding:8px;position:sticky;left:0;background:#fff;font-weight:500">Product</th><th style="padding:8px;text-align:right;font-weight:500">Today</th><th style="padding:8px;text-align:right;font-weight:500">Recommended</th><th style="padding:8px;text-align:right;font-weight:500">Change</th><th style="padding:8px 16px 8px 12px;font-weight:500">How sure</th></tr></thead>
+            <tbody><sc-for list="{{ o.rows }}" as="r" hint-placeholder-count="10">
+              <tr style="border-top:1px solid #EEECE7">
+                <td style="padding:6px 4px 6px 16px"><input type="checkbox" checked="{{ r.held }}" onChange="{{ r.toggle }}" aria-label="{{ r.holdLabel }}" style="width:20px;height:20px;accent-color:#16181D"></td>
+                <td style="padding:8px;position:sticky;left:0;background:#fff;min-width:180px">{{ r.name }}</td>
+                <td style="padding:8px;text-align:right;white-space:nowrap">{{ r.today }}</td>
+                <td style="padding:8px;text-align:right;white-space:nowrap;font-weight:600">{{ r.rec }}</td>
+                <td style="padding:8px;text-align:right;white-space:nowrap">{{ r.change }}</td>
+                <td style="padding:8px 16px 8px 12px"><span style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;border:1px solid {{ r.pillBorder }};background:{{ r.pillBg }};font:500 12.5px/1.3 Geist;color:{{ r.pillFg }}"><span aria-hidden="true">{{ r.glyph }}</span>{{ r.label }}</span></td>
+              </tr>
+            </sc-for></tbody>
+          </table>
+        </div>
+        <div style="padding:12px 16px;border-top:1px solid #E2E0DA;font:13px/1.5 Geist;color:#5F6368;text-wrap:pretty"><b style="color:#16181D">⇥ Stopped at your limit</b> means the model would go further if allowed: the direction is the finding, test before going further. The search maximises expected profit across all 400 versions of the model, so one lucky estimate can't drive a recommendation.</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ o.first }}" hint-placeholder-val="{{ false }}"><div style="padding:40px 20px;border-radius:10px;background:#fff;border:1px solid #E2E0DA;text-align:center;font:14px Geist;color:#5F6368">Searching for the best prices inside your limits…</div></sc-if>
+  </section>
+
+  <section aria-label="Your limits" style="flex:1 1 320px;min-width:0;background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:18px">
+    <b style="font:600 15px Geist">Your limits</b>
+    <label style="display:flex;flex-direction:column;gap:4px;padding:8px;margin:-8px;border-radius:8px;outline:{{ o.hlMove }}">
+      <span style="display:flex;justify-content:space-between;gap:8px;font:500 13px Geist"><span>Largest price move</span><span style="font:600 13px 'Geist Mono',monospace">±{{ o.maxChange }}%</span></span>
+      <input type="range" min="0" max="25" step="1" value="{{ o.maxChange }}" onChange="{{ o.setMax }}">
+      <span style="font:13px Geist;color:#5F6368">Prices also stay inside what was charged in the last two years</span>
+    </label>
+    <label style="display:flex;flex-direction:column;gap:4px;padding:8px;margin:-8px;border-radius:8px;outline:{{ o.hlMargin }}">
+      <span style="display:flex;justify-content:space-between;gap:8px;font:500 13px Geist"><span>Lowest margin allowed</span><span style="font:600 13px 'Geist Mono',monospace">{{ o.minMargin }}%</span></span>
+      <input type="range" min="0" max="40" step="1" value="{{ o.minMargin }}" onChange="{{ o.setMargin }}">
+    </label>
+    <label style="display:flex;flex-direction:column;gap:4px;padding:8px;margin:-8px;border-radius:8px;outline:{{ o.hlFloor }}">
+      <span style="display:flex;justify-content:space-between;gap:8px;font:500 13px Geist"><span>Revenue to keep</span><span style="font:600 13px 'Geist Mono',monospace">{{ o.floor }}% of today</span></span>
+      <input type="range" min="80" max="100" step="1" value="{{ o.floor }}" onChange="{{ o.setFloor }}">
+      <span style="font:13px Geist;color:#5F6368">Stops the search trading too much volume for margin</span>
+    </label>
+    <sc-if value="{{ o.hasLines }}" hint-placeholder-val="{{ false }}"><label style="display:flex;gap:10px;align-items:center;min-height:32px;font:14px/1.3 Geist;cursor:pointer"><input type="checkbox" checked="{{ o.link }}" onChange="{{ o.toggleLink }}" style="width:18px;height:18px;accent-color:#16181D;flex:none">Keep products that share a price together</label></sc-if>
+    <div style="font:13px/1.5 Geist;color:#5F6368;border-top:1px solid #EEECE7;padding-top:12px">Tick <b style="color:#16181D">Hold</b> in the table to keep a product at today's price. {{ o.heldText }}</div>
+  </section>
+</div>
+</sc-if>
+
+<!-- 4 FREE DELIVERY -->
+<sc-if value="{{ show.delivery }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="04 Free delivery" style="display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap;padding:12px 16px;border-radius:10px;background:repeating-linear-gradient(135deg,#16181D 0 10px,#22252C 10px 20px);color:#fff">
+    <span style="padding:4px 10px;border-radius:6px;background:#F4F3EF;color:#16181D;font:600 12px 'Geist Mono',monospace;letter-spacing:.06em;white-space:nowrap">✎ YOUR ASSUMPTIONS</span>
+    <span style="flex:1 1 400px;font:14px/1.45 Geist;text-wrap:pretty">This tool is different: nothing here is estimated from store data, because the grocery data has no delivery in it. You supply the assumptions, and the ranges come from the low and high values you enter. Category and store group don't apply.</span>
+  </div>
+  <div style="display:flex;flex-direction:row-reverse;flex-wrap:wrap;gap:16px;align-items:flex-start">
+    <section aria-label="Results" style="flex:2.4 1 520px;min-width:0;position:sticky;top:12px;display:flex;flex-direction:column;gap:14px">
+      <div role="status" aria-live="polite" style="display:flex;gap:10px 16px;align-items:center;flex-wrap:wrap;padding:14px 16px;border-radius:10px;border:1.5px dashed {{ dv.fg }};background:{{ dv.bg }}">
+        <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 14px 5px 5px;border-radius:999px;background:{{ dv.fg }};color:#fff;font:600 14px/1.2 Geist,sans-serif;white-space:nowrap"><span aria-hidden="true" style="display:inline-flex;width:24px;height:24px;border-radius:50%;background:#fff;color:{{ dv.fg }};align-items:center;justify-content:center;font-size:13px;font-weight:700">{{ dv.glyph }}</span>{{ dv.label }}</div>
+        <div style="flex:1 1 300px;font:400 14px/1.5 Geist,sans-serif;text-wrap:pretty"><b>{{ dv.title }}.</b> {{ dv.reason }}</div>
+      </div>
+      <div style="background:#fff;border:1.5px dashed #CFCCC4;border-radius:10px;padding:18px;display:flex;flex-wrap:wrap;gap:20px 32px">
+        <div style="flex:1 1 180px"><div style="font:500 11px/1.3 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#5F6368">Best threshold</div><div style="font:600 42px/1 Geist;letter-spacing:-.02em;margin-top:6px">{{ d.best }}</div><div style="font:13px/1.4 Geist;color:#5F6368;margin-top:8px">{{ d.shareFree }} of orders would ship free</div></div>
+        <div style="flex:1 1 240px"><div style="font:500 11px/1.3 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#5F6368">Profit change per 1,000 orders</div><div style="display:flex;gap:8px;align-items:baseline;margin-top:6px;color:{{ d.color }}"><span aria-hidden="true" style="font-size:16px">{{ d.arrow }}</span><span style="font:600 42px/1 Geist;letter-spacing:-.02em">{{ d.mid }}</span></div><div style="font:500 14px/1.4 Geist;margin-top:8px">Likely {{ d.lo }} to {{ d.hi }}</div><div style="font:13px Geist;color:#5F6368">versus charging the fee on every order</div></div>
+        <div style="flex:0 1 180px"><div style="font:500 11px/1.3 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#5F6368">Beats a flat fee</div><div style="font:600 42px/1 Geist;letter-spacing:-.02em;margin-top:6px">{{ d.beats }}</div><div style="font:13px/1.4 Geist;color:#5F6368;margin-top:8px">of 300 draws from your ranges</div></div>
+      </div>
+      <div style="background:#fff;border:1.5px dashed #CFCCC4;border-radius:10px;padding:16px">
+        <div style="display:flex;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;align-items:baseline"><b style="font:600 15px Geist">Profit change by free-delivery threshold</b>
+          <div style="display:flex;gap:14px;font:12.5px Geist;color:#5F6368;flex-wrap:wrap"><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;border-top:2.5px solid #2F5BD3"></span>Middle</span><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:14px;height:10px;background:#C9D5F5"></span>Likely range</span><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;border-top:1.5px dashed #16181D"></span>No change</span><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:9px;height:9px;transform:rotate(45deg);border:2px solid #16181D;background:#fff"></span>Best</span></div></div>
+        <div style="position:relative;margin-top:12px">
+          <svg viewBox="0 0 640 260" role="img" aria-label="{{ d.chartLabel }}" tabIndex="0" onKeyDown="{{ d.onKey }}" onPointerMove="{{ d.onMove }}" onPointerDown="{{ d.onMove }}" onPointerLeave="{{ d.onLeave }}" style="width:100%;height:auto;display:block;touch-action:pan-y;cursor:crosshair">
+            <sc-for list="{{ d.g.yTicks }}" as="t" hint-placeholder-count="5"><line x1="58" x2="624" y1="{{ t.y }}" y2="{{ t.y }}" stroke="#EEECE7"></line><text x="50" y="{{ t.ty }}" text-anchor="end" font-size="11" fill="#5F6368" font-family="Geist Mono, monospace">{{ t.label }}</text></sc-for>
+            <polygon points="{{ d.g.band }}" fill="#C9D5F5"></polygon>
+            <line x1="58" x2="624" y1="{{ d.g.zeroY }}" y2="{{ d.g.zeroY }}" stroke="#16181D" stroke-width="1.5" stroke-dasharray="5 4"></line>
+            <polyline points="{{ d.g.mid }}" fill="none" stroke="#2F5BD3" stroke-width="2.5" stroke-linejoin="round"></polyline>
+            <sc-for list="{{ d.g.xTicks }}" as="t" hint-placeholder-count="9"><text x="{{ t.x }}" y="250" text-anchor="middle" font-size="11" fill="#5F6368" font-family="Geist Mono, monospace">{{ t.label }}</text></sc-for>
+            <line x1="{{ d.bestX }}" x2="{{ d.bestX }}" y1="14" y2="230" stroke="#16181D" stroke-width="1" stroke-dasharray="2 3"></line>
+            <rect x="{{ d.bestRx }}" y="{{ d.bestRy }}" width="11" height="11" transform="{{ d.bestRot }}" fill="#fff" stroke="#16181D" stroke-width="2"></rect>
+            <line x1="{{ d.hx }}" x2="{{ d.hx }}" y1="14" y2="230" stroke="#16181D" stroke-width="1" opacity="{{ d.hOp }}"></line>
+            <circle cx="{{ d.hx }}" cy="{{ d.hy }}" r="5" fill="#2F5BD3" stroke="#fff" stroke-width="2" opacity="{{ d.hOp }}"></circle>
+          </svg>
+        </div>
+        <div aria-live="polite" style="margin-top:8px;padding:8px 12px;border-radius:6px;background:#F4F3EF;font:13.5px/1.4 Geist">{{ d.readout }}</div>
+        <div style="font:12.5px/1.5 Geist;color:#5F6368;margin-top:8px;text-wrap:pretty">Hover, tap or use ← → on the chart for exact values. A low threshold gives the fee away to orders that would have come anyway; a very high one changes almost nothing.</div>
+      </div>
+    </section>
+
+    <section aria-label="Inputs" style="flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:12px">
+      <div style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:16px">
+        <b style="font:600 15px Geist">Your business</b>
+        <sc-for list="{{ d.biz }}" as="sl" hint-placeholder-count="2">
+          <label style="display:flex;flex-direction:column;gap:4px"><span style="display:flex;justify-content:space-between;gap:8px;font:500 13px Geist"><span>{{ sl.label }}</span><span style="font:600 13px 'Geist Mono',monospace">{{ sl.show }}</span></span><input type="range" min="{{ sl.min }}" max="{{ sl.max }}" step="{{ sl.step }}" value="{{ sl.value }}" onChange="{{ sl.onChange }}" aria-valuetext="{{ sl.show }}"></label>
+        </sc-for>
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font:500 13px Geist">How varied orders are</span>
+          <div role="radiogroup" aria-label="How varied orders are" style="display:flex;border:1.5px solid #CFCCC4;border-radius:8px;overflow:hidden">
+            <sc-for list="{{ d.spreads }}" as="h" hint-placeholder-count="3"><button role="radio" aria-checked="{{ h.sel }}" onClick="{{ h.onClick }}" style="flex:1 1 0;min-height:40px;border:0;border-left:1px solid #E2E0DA;background:{{ h.bg }};color:{{ h.fg }};font:500 13px Geist;white-space:nowrap">{{ h.label }}</button></sc-for>
+          </div>
+        </div>
+        <sc-for list="{{ d.biz2 }}" as="sl" hint-placeholder-count="3">
+          <label style="display:flex;flex-direction:column;gap:4px"><span style="display:flex;justify-content:space-between;gap:8px;font:500 13px Geist"><span>{{ sl.label }}</span><span style="font:600 13px 'Geist Mono',monospace">{{ sl.show }}</span></span><input type="range" min="{{ sl.min }}" max="{{ sl.max }}" step="{{ sl.step }}" value="{{ sl.value }}" onChange="{{ sl.onChange }}" aria-valuetext="{{ sl.show }}"></label>
+        </sc-for>
+      </div>
+      <div style="background:#fff;border:1.5px dashed #16181D;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><b style="font:600 15px Geist">Your assumptions</b><span style="font:12px Geist;color:#5F6368">guesses, as ranges</span></div>
+        <label style="display:flex;flex-direction:column;gap:4px"><span style="display:flex;justify-content:space-between;gap:8px;font:500 13px Geist"><span>Orders close enough to top up</span><span style="font:600 13px 'Geist Mono',monospace">within {{ d.reach }}</span></span><input type="range" min="5" max="50" step="5" value="{{ d.reachV }}" onChange="{{ d.setReach }}" aria-valuetext="{{ d.reach }}"><span style="font:12.5px Geist;color:#5F6368">of the threshold, below it</span></label>
+        <sc-for list="{{ d.ranges }}" as="rg" hint-placeholder-count="2">
+          <div role="group" aria-label="{{ rg.label }}" style="display:flex;flex-direction:column;gap:2px">
+            <span style="display:flex;justify-content:space-between;gap:8px;font:500 13px Geist"><span>{{ rg.label }}</span><span style="font:600 13px 'Geist Mono',monospace">{{ rg.show }}</span></span>
+            <div aria-hidden="true" style="position:relative;height:8px;margin:6px 8px 2px;border-radius:4px;background:#EEECE7"><div style="position:absolute;top:0;bottom:0;left:{{ rg.l }};width:{{ rg.w }};background:#C9D5F5;border-radius:4px"></div></div>
+            <label style="display:flex;align-items:center;gap:8px;font:12.5px Geist;color:#5F6368"><span style="flex:0 0 52px">Low</span><input type="range" min="0" max="{{ rg.max }}" step="{{ rg.step }}" value="{{ rg.lo }}" onChange="{{ rg.setLo }}" aria-label="{{ rg.loLabel }}"></label>
+            <label style="display:flex;align-items:center;gap:8px;font:12.5px Geist;color:#5F6368"><span style="flex:0 0 52px">High</span><input type="range" min="0" max="{{ rg.max }}" step="{{ rg.step }}" value="{{ rg.hi }}" onChange="{{ rg.setHi }}" aria-label="{{ rg.hiLabel }}"></label>
+            <span style="font:12.5px Geist;color:#5F6368">{{ rg.hint }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+  </div>
+</div>
+</sc-if>
+
+<!-- 5 ASK THE LAB -->
+<sc-if value="{{ show.ask }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="05 Ask the Lab" style="max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:14px">
+  <div style="display:flex;flex-direction:column;gap:4px"><b style="font:600 22px/1.25 Geist;letter-spacing:-.01em">Ask the Lab about {{ a.cat }}</b><span style="font:14px/1.5 Geist;color:#5F6368;text-wrap:pretty">The assistant cannot do sums. It can only run the three tools from Change prices, Plan a promotion and Find best prices, and every number it writes is checked against what those tools returned.</span></div>
+  <sc-if value="{{ a.off }}" hint-placeholder-val="{{ false }}"><div role="note" style="padding:14px 16px;border-radius:10px;background:#fff;border:1.5px solid #CFCCC4;font:14px/1.5 Geist"><b>The assistant is switched off.</b> No key is configured for this copy of the app. The other five sections work without it.</div></sc-if>
+  <sc-if value="{{ a.cleared }}" hint-placeholder-val="{{ false }}"><div role="status" style="padding:10px 14px;border-radius:8px;background:#ECEAE4;font:13.5px Geist;color:#3A3D44;text-align:center">{{ a.clearedText }}</div></sc-if>
+  <sc-if value="{{ a.showStarters }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font:500 11px/1.3 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#5F6368">Try asking</span>
+      <div style="display:flex;flex-direction:column;gap:8px"><sc-for list="{{ a.starters }}" as="q" hint-placeholder-count="3"><button onClick="{{ q.onClick }}" disabled="{{ a.disabled }}" style="text-align:left;min-height:48px;padding:10px 14px;border-radius:10px;border:1px solid #E2E0DA;background:#fff;font:14.5px/1.4 Geist;display:flex;justify-content:space-between;gap:12px;align-items:center"><span>{{ q.text }}</span><span aria-hidden="true" style="color:#5F6368">↗</span></button></sc-for></div>
+    </div>
+  </sc-if>
+  <div role="log" aria-live="polite" style="display:flex;flex-direction:column;gap:14px">
+    <sc-for list="{{ a.msgs }}" as="mm" hint-placeholder-count="0">
+      <article style="display:flex;flex-direction:column;gap:8px">
+        <div style="align-self:flex-end;max-width:85%;padding:10px 14px;border-radius:14px 14px 4px 14px;background:#16181D;color:#fff;font:14.5px/1.45 Geist">{{ mm.q }}</div>
+        <div style="align-self:flex-start;width:100%;max-width:92%;background:#fff;border:1px solid #E2E0DA;border-radius:4px 14px 14px 14px;padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+          <sc-if value="{{ mm.waiting }}" hint-placeholder-val="{{ false }}"><div style="font:14px Geist;color:#5F6368">{{ mm.waitText }}</div></sc-if>
+          <sc-if value="{{ mm.done }}" hint-placeholder-val="{{ false }}"><div style="font:15px/1.55 Geist;text-wrap:pretty">{{ mm.answer }}</div></sc-if>
+          <sc-if value="{{ mm.failed }}" hint-placeholder-val="{{ false }}"><div role="alert" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;font:14px Geist;color:#6B1D0E"><span>✕ {{ mm.failText }}</span><button onClick="{{ mm.retry }}" style="min-height:36px;padding:0 12px;border-radius:8px;border:1.5px solid #6B1D0E;background:#fff;font:600 13px Geist;color:#6B1D0E">Retry</button></div></sc-if>
+          <sc-if value="{{ mm.hasCalls }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:6px;border-top:1px solid #EEECE7;padding-top:10px"><sc-for list="{{ mm.calls }}" as="c" hint-placeholder-count="1"><div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font:13px/1.4 Geist"><span style="padding:2px 8px;border-radius:999px;background:#F4F3EF;border:1px solid #E2E0DA;font-weight:500;white-space:nowrap">⚙ {{ c.label }}</span><span style="color:#5F6368">{{ c.detail }}</span></div></sc-for></div></sc-if>
+          <sc-if value="{{ mm.ok }}" hint-placeholder-val="{{ false }}"><div style="font:500 13px Geist;color:#1F7A4D">✓ {{ mm.okText }}</div></sc-if>
+          <sc-if value="{{ mm.warn }}" hint-placeholder-val="{{ false }}"><div style="padding:6px 10px;border-radius:6px;background:#FFF4D6;border:1px solid #E7CF8E;font:500 13px Geist;color:#3D2B00">⚠ {{ mm.warnText }}</div></sc-if>
+        </div>
+      </article>
+    </sc-for>
+  </div>
+  <sc-if value="{{ a.hasNote }}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding:10px 14px;border-radius:8px;background:#FFF4D6;border:1px solid #E7CF8E;font:13.5px Geist;color:#3D2B00">{{ a.note }}</div></sc-if>
+  <form onSubmit="{{ a.onSubmit }}" style="position:sticky;bottom:12px;display:flex;flex-direction:column;gap:6px;background:#fff;border:1.5px solid #16181D;border-radius:12px;padding:10px;box-shadow:0 6px 24px rgba(22,24,29,.08)">
+    <label style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)" for="askbox">Your question</label>
+    <textarea id="askbox" rows="2" maxLength="400" value="{{ a.input }}" onChange="{{ a.onInput }}" onKeyDown="{{ a.onKey }}" disabled="{{ a.off }}" placeholder="{{ a.placeholder }}" style="width:100%;resize:none;border:0;outline:none;font:15px/1.45 Geist;padding:4px 6px;background:transparent"></textarea>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font:12px 'Geist Mono',monospace;color:#5F6368">{{ a.count }} / 400</span><button type="submit" disabled="{{ a.sendDisabled }}" style="min-height:40px;padding:0 20px;border-radius:8px;border:0;background:{{ a.sendBg }};color:#fff;font:600 14px Geist">{{ a.sendLabel }}</button></div>
+  </form>
+</div>
+</sc-if>
+
+<!-- 6 HOW IT WORKS -->
+<sc-if value="{{ show.method }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="06 How it works" style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+  <nav aria-label="On this page" style="flex:0 1 220px;position:sticky;top:12px;display:flex;flex-direction:column;gap:2px">
+    <span style="font:500 11px/1.3 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#5F6368;margin-bottom:6px">{{ h.cat }} · the evidence</span>
+    <sc-for list="{{ h.toc }}" as="t" hint-placeholder-count="6"><button onClick="{{ t.onClick }}" style="text-align:left;min-height:36px;padding:6px 10px;border:0;border-radius:6px;background:transparent;font:500 14px/1.3 Geist;color:#16181D;display:flex;gap:8px"><span style="font:500 12px 'Geist Mono',monospace;color:#5F6368;padding-top:1px">{{ t.id }}</span>{{ t.label }}</button></sc-for>
+  </nav>
+  <div style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:16px">
+
+    <section id="blk-A" style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:10px">
+      <span style="font:500 11px 'Geist Mono',monospace;letter-spacing:.06em;color:#5F6368">A</span><h2 style="margin:0;font:600 20px/1.25 Geist;letter-spacing:-.01em">The model in four sentences</h2>
+      <ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font:15px/1.6 Geist;max-width:760px;text-wrap:pretty"><sc-for list="{{ h.four }}" as="s" hint-placeholder-count="4"><li>{{ s }}</li></sc-for></ol>
+    </section>
+
+    <section id="blk-B" style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font:500 11px 'Geist Mono',monospace;letter-spacing:.06em;color:#5F6368">B</span><h2 style="margin:0;font:600 20px/1.25 Geist;letter-spacing:-.01em">Does it predict weeks it has never seen?</h2>
+      <p style="margin:0;font:14px/1.55 Geist;color:#3A3D44;max-width:760px;text-wrap:pretty">The last {{ h.holdout }} weeks were hidden, the model was refitted without them, and its predictions were compared with what actually sold. Typical miss is the median error across product-weeks; the benchmark repeats each store's last eight weeks.</p>
+      <div style="overflow-x:auto"><table style="width:100%;min-width:480px;border-collapse:collapse;font:14px/1.35 Geist">
+        <thead><tr style="text-align:left;font:500 11px 'Geist Mono',monospace;letter-spacing:.05em;text-transform:uppercase;color:#5F6368"><th style="padding:8px;font-weight:500">Category</th><th style="padding:8px;text-align:right;font-weight:500">Typical miss</th><th style="padding:8px;text-align:right;font-weight:500">Benchmark miss</th><th style="padding:8px;font-weight:500">Verdict</th></tr></thead>
+        <tbody><sc-for list="{{ h.cats }}" as="r" hint-placeholder-count="4"><tr style="border-top:1px solid #EEECE7;background:{{ r.bg }}"><td style="padding:9px 8px;font-weight:{{ r.weight }}">{{ r.name }}</td><td style="padding:9px 8px;text-align:right">{{ r.miss }}</td><td style="padding:9px 8px;text-align:right">{{ r.bench }}</td><td style="padding:9px 8px"><span style="display:inline-flex;gap:6px;padding:2px 10px;border-radius:999px;border:1px solid {{ r.pillBorder }};background:{{ r.pillBg }};font:500 12.5px Geist;color:{{ r.pillFg }};white-space:nowrap">{{ r.verdict }}</span></td></tr></sc-for></tbody>
+      </table></div>
+      <div style="display:flex;gap:10px 16px;align-items:flex-end;flex-wrap:wrap;justify-content:space-between">
+        <label style="display:flex;flex-direction:column;gap:6px;flex:0 1 360px"><span style="font:500 13px Geist">Product</span><select value="{{ h.item }}" onChange="{{ h.setItem }}" style="min-height:44px;padding:0 10px;border-radius:8px;border:1.5px solid #CFCCC4;background:#fff;font:500 14px Geist"><sc-for list="{{ h.itemOpts }}" as="o" hint-placeholder-count="10"><option value="{{ o.v }}">{{ o.label }}</option></sc-for></select></label>
+        <div style="display:flex;gap:14px;font:12.5px Geist;color:#5F6368"><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;border-top:2.5px solid #16181D"></span>Actually sold</span><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;border-top:2.5px dashed #2F5BD3"></span>Predicted</span></div>
+      </div>
+      <svg viewBox="0 0 640 240" role="img" aria-label="{{ h.lineLabel }}" tabIndex="0" onKeyDown="{{ h.onKey }}" onPointerMove="{{ h.onMove }}" onPointerDown="{{ h.onMove }}" onPointerLeave="{{ h.onLeave }}" style="width:100%;height:auto;display:block;touch-action:pan-y;cursor:crosshair">
+        <sc-for list="{{ h.g.yTicks }}" as="t" hint-placeholder-count="5"><line x1="58" x2="624" y1="{{ t.y }}" y2="{{ t.y }}" stroke="#EEECE7"></line><text x="50" y="{{ t.ty }}" text-anchor="end" font-size="11" fill="#5F6368" font-family="Geist Mono, monospace">{{ t.label }}</text></sc-for>
+        <polyline points="{{ h.g.s0 }}" fill="none" stroke="#16181D" stroke-width="2.5" stroke-linejoin="round"></polyline>
+        <polyline points="{{ h.g.s1 }}" fill="none" stroke="#2F5BD3" stroke-width="2.5" stroke-dasharray="6 4" stroke-linejoin="round"></polyline>
+        <sc-for list="{{ h.g.xTicks }}" as="t" hint-placeholder-count="7"><text x="{{ t.x }}" y="232" text-anchor="middle" font-size="11" fill="#5F6368" font-family="Geist Mono, monospace">{{ t.label }}</text></sc-for>
+        <line x1="{{ h.hx }}" x2="{{ h.hx }}" y1="14" y2="210" stroke="#16181D" stroke-width="1" opacity="{{ h.hOp }}"></line>
+        <circle cx="{{ h.hx }}" cy="{{ h.hy0 }}" r="4.5" fill="#16181D" stroke="#fff" stroke-width="2" opacity="{{ h.hOp }}"></circle>
+        <circle cx="{{ h.hx }}" cy="{{ h.hy1 }}" r="4.5" fill="#2F5BD3" stroke="#fff" stroke-width="2" opacity="{{ h.hOp }}"></circle>
+      </svg>
+      <div aria-live="polite" style="padding:8px 12px;border-radius:6px;background:#F4F3EF;font:13.5px/1.4 Geist">{{ h.readout }}</div>
+      <p style="margin:0;font:14px/1.55 Geist;max-width:760px;text-wrap:pretty">{{ h.summary }}</p>
+    </section>
+
+    <section id="blk-C" style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font:500 11px 'Geist Mono',monospace;letter-spacing:.06em;color:#5F6368">C</span><h2 style="margin:0;font:600 20px/1.25 Geist;letter-spacing:-.01em">Price sensitivity, before and after pooling</h2>
+      <p style="margin:0;font:14px/1.55 Geist;color:#3A3D44;max-width:760px;text-wrap:pretty">Each row is the change in units from a 1% regular price rise. Where the raw single-product estimate sits far from the pooled one, the raw estimate was too noisy to trust on its own.</p>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;font:12.5px Geist;color:#5F6368"><span style="display:inline-flex;align-items:center;gap:6px"><span style="position:relative;width:22px;height:10px;background:#C9D5F5;border-radius:2px"><span style="position:absolute;left:9px;top:-2px;width:3px;height:14px;background:#2F5BD3"></span></span>Pooled, with likely range</span><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:9px;height:9px;transform:rotate(45deg);border:2px solid #16181D;background:#fff"></span>Raw estimate</span><span style="display:inline-flex;align-items:center;gap:6px"><span style="height:12px;border-left:1.5px dashed #B4361F"></span>−1 reference</span></div>
+      <div style="overflow-x:auto"><div style="min-width:520px">
+        <div style="display:flex;font:11px 'Geist Mono',monospace;color:#5F6368;margin-bottom:4px"><div style="flex:0 0 200px"></div><div style="position:relative;flex:1;height:14px;margin-right:60px"><sc-for list="{{ h.el.ticks }}" as="t" hint-placeholder-count="6"><span style="position:absolute;left:{{ t.x }};transform:translateX(-50%);color:{{ t.color }}">{{ t.label }}</span></sc-for></div></div>
+        <sc-for list="{{ h.el.rows }}" as="r" hint-placeholder-count="10">
+          <div tabIndex="0" onMouseEnter="{{ r.on }}" onFocus="{{ r.on }}" aria-label="{{ r.aria }}" style="display:flex;align-items:center;min-height:34px;border-top:1px solid #F1EFEA;background:{{ r.hl }};border-radius:4px">
+            <div style="flex:0 0 200px;padding-right:10px;font:13px/1.25 Geist">{{ r.name }}</div>
+            <div style="position:relative;flex:1;height:24px">
+              <div style="position:absolute;top:0;bottom:0;left:{{ h.el.zero }};border-left:1px solid #CFCCC4"></div>
+              <div style="position:absolute;top:0;bottom:0;left:{{ h.el.ref }};border-left:1.5px dashed #B4361F"></div>
+              <div style="position:absolute;top:7px;height:10px;left:{{ r.l }};width:{{ r.w }};background:#C9D5F5;border-radius:2px"></div>
+              <div style="position:absolute;top:3px;height:18px;width:3px;margin-left:-1.5px;left:{{ r.m }};background:#2F5BD3;border-radius:2px"></div>
+              <div style="position:absolute;top:7px;width:9px;height:9px;margin-left:-4.5px;left:{{ r.raw }};transform:rotate(45deg);border:2px solid #16181D;background:#fff"></div>
+            </div>
+            <div style="flex:0 0 60px;text-align:right;font:500 13px 'Geist Mono',monospace">{{ r.mid }}</div>
+          </div>
+        </sc-for>
+      </div></div>
+      <div aria-live="polite" style="padding:8px 12px;border-radius:6px;background:#F4F3EF;font:13.5px/1.4 Geist">{{ h.el.readout }}</div>
+      <p style="margin:0;font:13.5px/1.55 Geist;color:#3A3D44;max-width:760px;text-wrap:pretty">Anything to the right of −1 means a price rise loses less volume than it gains in price. The model can't find a profit-maximising price there, so Find best prices stops at your limit and flags the evidence as weak.</p>
+    </section>
+
+    <section id="blk-D" style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font:500 11px 'Geist Mono',monospace;letter-spacing:.06em;color:#5F6368">D</span><h2 style="margin:0;font:600 20px/1.25 Geist;letter-spacing:-.01em">Who takes sales from whom</h2>
+      <p style="margin:0;font:14px/1.55 Geist;color:#3A3D44;max-width:760px;text-wrap:pretty">Each cell is how the row product's units respond to the column product's price. A positive number means the two compete: when one gets cheaper, the other sells less. Hover, tap or tab to a cell to read it.</p>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;font:12.5px Geist;color:#5F6368"><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:14px;height:14px;background:rgba(47,91,211,.55);border-radius:2px"></span>+ compete for the same shoppers</span><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:14px;height:14px;background:rgba(196,98,45,.5);border-radius:2px"></span>− move together</span></div>
+      <div aria-live="polite" style="padding:10px 12px;border-radius:6px;background:#F4F3EF;font:500 14px/1.4 Geist;min-height:40px">{{ h.heat.readout }}</div>
+      <div style="overflow-x:auto;padding-bottom:4px"><div role="grid" aria-label="Cross-price effects between products" style="display:grid;grid-template-columns:200px repeat(10,minmax(46px,1fr));gap:2px;min-width:680px">
+        <div></div><sc-for list="{{ h.heat.cols }}" as="c" hint-placeholder-count="10"><div title="{{ c.name }}" style="font:600 11px 'Geist Mono',monospace;color:#5F6368;text-align:center;padding:4px 0">{{ c.n }}</div></sc-for>
+        <sc-for list="{{ h.heat.cells }}" as="c" hint-placeholder-count="110">
+          <sc-if value="{{ c.head }}" hint-placeholder-val="{{ false }}"><div style="position:sticky;left:0;background:#fff;font:13px/1.2 Geist;padding:0 8px 0 0;display:flex;align-items:center;gap:6px;min-height:38px"><span style="font:600 11px 'Geist Mono',monospace;color:#5F6368">{{ c.n }}</span>{{ c.name }}</div></sc-if>
+          <sc-if value="{{ c.diag }}" hint-placeholder-val="{{ false }}"><div aria-label="Same product" style="min-height:38px;border-radius:3px;background:repeating-linear-gradient(135deg,#F4F3EF 0 4px,#fff 4px 8px)"></div></sc-if>
+          <sc-if value="{{ c.cell }}" hint-placeholder-val="{{ true }}"><button onMouseEnter="{{ c.on }}" onFocus="{{ c.on }}" onClick="{{ c.on }}" aria-label="{{ c.aria }}" style="min-height:38px;border:{{ c.border }};border-radius:3px;background:{{ c.bg }};color:{{ c.fg }};font:500 11.5px 'Geist Mono',monospace;padding:0">{{ c.v }}</button></sc-if>
+        </sc-for>
+      </div></div>
+      <p style="margin:0;font:13.5px/1.55 Geist;color:#3A3D44;max-width:760px;text-wrap:pretty">{{ h.heat.note }}</p>
+    </section>
+
+    <section id="blk-E" style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font:500 11px 'Geist Mono',monospace;letter-spacing:.06em;color:#5F6368">E</span><h2 style="margin:0;font:600 20px/1.25 Geist;letter-spacing:-.01em">Is price just following demand?</h2>
+      <p style="margin:0;font:14px/1.55 Geist;color:#3A3D44;max-width:760px;text-wrap:pretty">A chain discounts when it expects demand to move, which can bias a price estimate. The check uses wholesale cost as an instrument: cost moves price, but shoppers never see it. It only works where cost really drives price (strength of 10 or more).</p>
+      <div style="overflow-x:auto"><table style="width:100%;min-width:600px;border-collapse:collapse;font:13.5px/1.35 Geist">
+        <thead><tr style="text-align:left;font:500 11px 'Geist Mono',monospace;letter-spacing:.05em;text-transform:uppercase;color:#5F6368"><th style="padding:8px;position:sticky;left:0;background:#fff;font-weight:500">Product</th><th style="padding:8px;text-align:right;font-weight:500">Plain estimate</th><th style="padding:8px;text-align:right;font-weight:500">Instrumented ± error</th><th style="padding:8px;text-align:right;font-weight:500">Strength</th><th style="padding:8px;font-weight:500">Usable?</th></tr></thead>
+        <tbody><sc-for list="{{ h.endo }}" as="r" hint-placeholder-count="10"><tr style="border-top:1px solid #EEECE7"><td style="padding:8px;position:sticky;left:0;background:#fff;min-width:180px">{{ r.name }}</td><td style="padding:8px;text-align:right">{{ r.ols }}</td><td style="padding:8px;text-align:right;white-space:nowrap">{{ r.iv }}</td><td style="padding:8px;text-align:right">{{ r.f }}</td><td style="padding:8px"><span style="display:inline-flex;padding:2px 10px;border-radius:999px;border:1px solid {{ r.pillBorder }};background:{{ r.pillBg }};font:500 12.5px Geist;color:{{ r.pillFg }};white-space:nowrap">{{ r.label }}</span></td></tr></sc-for></tbody>
+      </table></div>
+      <p style="margin:0;font:14px/1.55 Geist;max-width:760px;text-wrap:pretty"><b>{{ h.endoTake }}</b></p>
+    </section>
+
+    <section id="blk-F" style="background:#fff;border:1px solid #E2E0DA;border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:10px">
+      <span style="font:500 11px 'Geist Mono',monospace;letter-spacing:.06em;color:#5F6368">F</span><h2 style="margin:0;font:600 20px/1.25 Geist;letter-spacing:-.01em">What this cannot tell you</h2>
+      <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font:14.5px/1.55 Geist;max-width:760px;text-wrap:pretty"><sc-for list="{{ h.limits }}" as="s" hint-placeholder-count="5"><li>{{ s }}</li></sc-for></ul>
+    </section>
+  </div>
+</div>
+</sc-if>
+
+</main>
+
+<footer style="border-top:1px solid #E2E0DA">
+  <div style="max-width:1440px;margin:0 auto;padding:16px 20px 24px;display:flex;flex-wrap:wrap;gap:6px 24px;font:13px/1.5 Geist;color:#5F6368">
+    <span>Built by <b style="color:#16181D;font-weight:600">Mohit Luthra</b></span>
+    <span>Data: James M. Kilts Center for Marketing, University of Chicago Booth School of Business</span>
+    <span>Only fitted model parameters are published here, no store records.</span>
+  </div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    engine: false, index: null, models: {}, code: 'tna', tier: 'chain', tab: 'prices', loading: null, loadErr: null,
+    priceMap: {}, weeks: 4, link: true,
+    promo: { item: 0, depth: 20, weeks: 1, deal: 'advertised', funding: 0, wholeLine: true }, partHover: null,
+    opt: { maxChange: 10, minMargin: 0, floor: 95, link: true, locked: [] }, optRes: null, optKey: '', optHints: null,
+    dl: { avgBasket: 45, basketSpread: 0.6, marginPct: 0.28, deliveryCost: 6, fee: 4, reachPct: 0.25, topUp: [0.15, 0.35], extraOrders: [0.02, 0.1] },
+    hover: {}, methodItem: 0, elHover: null, heatCell: null,
+    msgs: [], askInput: '', askBusy: false, askNote: null, clearedFor: null,
+  };
+
+  componentDidMount() {
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem('pricing-lab-ui') || 'null'); } catch (e) {}
+    const code = (saved && saved.code) || 'tna';
+    if (saved) this.setState({ tab: saved.tab || 'prices', code, tier: saved.tier || 'chain' });
+    const wait = () => (window.PLEngine ? this.setState({ engine: true }) : setTimeout(wait, 40));
+    wait();
+    this.getData('index').then(index => this.setState({ index })).catch(() => {});
+    this.load(code);
+  }
+  componentDidUpdate() { this.scheduleOpt(); }
+  componentWillUnmount() { clearTimeout(this._ot); }
+
+  getData(code) {
+    // script tags work from file:// too, where fetch() is blocked
+    const have = () => window.PLData && window.PLData[code];
+    if (have()) return Promise.resolve(have());
+    return new Promise((res, rej) => {
+      const el = document.createElement('script');
+      el.src = 'data/' + code + '.js';
+      el.onload = () => (have() ? res(have()) : rej(new Error('file was empty')));
+      el.onerror = () => { el.remove(); rej(new Error('data/' + code + '.js is missing')); };
+      document.head.appendChild(el);
+    });
+  }
+  load(code) {
+    if (this.state.models[code]) return;
+    this.setState({ loading: code, loadErr: null });
+    this.getData(code)
+      .then(m => this.setState(s => ({ models: { ...s.models, [code]: m }, loading: s.loading === code ? null : s.loading })))
+      .catch(e => this.setState({ loading: null, loadErr: { code, msg: (e && e.message) || 'network error' } }));
+  }
+  save(p) { try { const s = { ...this.state, ...p }; localStorage.setItem('pricing-lab-ui', JSON.stringify({ tab: s.tab, code: s.code, tier: s.tier })); } catch (e) {} }
+  model() { return this.state.models[this.state.code]; }
+  setTab(tab) { this.setState({ tab }); this.save({ tab }); try { window.scrollTo(0, 0); } catch (e) {} }
+  setCode(code) {
+    if (code === this.state.code) return;
+    const had = this.state.msgs.length > 0;
+    this.setState(s => ({ code, promo: { ...s.promo, item: 0 }, opt: { ...s.opt, locked: [] }, methodItem: 0, msgs: [], askNote: null, clearedFor: had ? code : null, heatCell: null, elHover: null, hover: {}, partHover: null }));
+    this.save({ code }); this.load(code);
+  }
+  memo(name, key, fn) { const m = this._m || (this._m = {}); if (m[name] && m[name].k === key) return m[name].v; const v = fn(); m[name] = { k: key, v }; return v; }
+
+  optArgs(s) { return { tier: s.tier, maxChange: s.opt.maxChange / 100, minMargin: s.opt.minMargin / 100, revenueFloor: s.opt.floor / 100, locked: s.opt.locked, linkLines: s.opt.link }; }
+  optKeyOf(s) { const o = s.opt; return [s.code, s.tier, o.maxChange, o.minMargin, o.floor, o.link, o.locked.slice().sort().join('.')].join('|'); }
+  scheduleOpt() {
+    const s = this.state, E = window.PLEngine, model = this.model();
+    if (!E || !model || s.tab !== 'best') return;
+    const key = this.optKeyOf(s);
+    if (key === s.optKey || key === this._pend) return;
+    this._pend = key; clearTimeout(this._ot);
+    this._ot = setTimeout(() => {
+      const st = this.state, mdl = this.model(); if (!mdl) { this._pend = null; return; }
+      const k2 = this.optKeyOf(st), args = this.optArgs(st);
+      const r = E.optimizePrices(mdl, args);
+      let hints = null;
+      if (!r.feasible) hints = { floorOk: E.optimizePrices(mdl, { ...args, revenueFloor: 0.8 }).feasible };
+      this._pend = null;
+      this.setState({ optRes: r, optKey: k2, optHints: hints });
+    }, 140);
+  }
+
+  move(i, value) {
+    const E = window.PLEngine, model = this.model(), items = model.items, s = this.state;
+    value = Math.max(0.01, Math.round(value * 100) / 100);
+    const prices = [...(s.priceMap[s.code] || items.map(it => it.price))];
+    const g = E.priceLines(model, s.link).find(x => x.includes(i)) || [i];
+    const ratio = value / items[i].price;
+    for (const j of g) prices[j] = Math.round(items[j].price * ratio * 100) / 100;
+    prices[i] = value;
+    this.setState(st => ({ priceMap: { ...st.priceMap, [st.code]: prices } }));
+  }
+  setPromo(p) { this.setState(s => ({ promo: { ...s.promo, ...p } })); }
+  setOpt(p) { this.setState(s => ({ opt: { ...s.opt, ...p } })); }
+  setDl(p) { this.setState(s => ({ dl: { ...s.dl, ...p } })); }
+  setHover(name, i) { this.setState(s => (s.hover[name] === i ? null : { hover: { ...s.hover, [name]: i } })); }
+
+  vd(v, title) {
+    const M = { go: ['✓', '#1F7A4D', '#E6F2EA'], test: ['◐', '#8A5A00', '#FFF4D6'], hold: ['▽', '#A24A12', '#FCEADF'], stop: ['✕', '#B4361F', '#FBE5E0'] };
+    const m = M[v.call] || ['•', '#5F6368', '#FFFFFF'];
+    const label = v.call ? window.PLEngine.CALL_LABEL[v.call] : 'No change yet';
+    return { glyph: m[0], fg: m[1], bg: m[2], label, title: title || (v.headline !== label ? v.headline : ''), reason: v.reason };
+  }
+  rb(s) {
+    let lo = Math.min(s.p10, 0), hi = Math.max(s.p90, 0); const span = (hi - lo) || 1; lo -= span * 0.12; hi += span * 0.12;
+    const P = v => ((v - lo) / (hi - lo) * 100).toFixed(2) + '%';
+    return { l: P(s.p10), w: ((s.p90 - s.p10) / (hi - lo) * 100).toFixed(2) + '%', m: P(s.p50), z: P(0) };
+  }
+  kpi(label, S, fmt, base) {
+    const F = window.PLFmt;
+    return { label, mid: fmt(S.p50), lo: fmt(S.p10), hi: fmt(S.p90), base, arrow: F.arrow(S.p50, 0.5), color: F.tone(S.p50, 0.5), bar: this.rb(S), title: `Middle ${fmt(S.p50)}, 10th percentile ${fmt(S.p10)}, 90th percentile ${fmt(S.p90)}` };
+  }
+  seg(list, cur, set, sel = (a, b) => a === b) {
+    return list.map(o => { const on = sel(o.v, cur); return { ...o, sel: on ? 'true' : 'false', bg: on ? '#16181D' : '#fff', fg: on ? '#fff' : '#16181D', border: on ? '#16181D' : '#E2E0DA', dot: on ? '#16181D' : '#fff', onClick: () => set(o.v) }; });
+  }
+  niceTicks(lo, hi, n = 4) {
+    const raw = (hi - lo) / n, p = Math.pow(10, Math.floor(Math.log10(raw || 1)));
+    const step = [1, 2, 2.5, 5, 10].map(x => x * p).find(x => x >= raw) || p * 10;
+    const out = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(Math.abs(v) < 1e-9 ? 0 : v);
+    return out;
+  }
+  chart(name, n, series, opts) {
+    const W = 640, H = opts.h, L = 58, R = 16, T = 14, B = opts.b;
+    const all = series.flat().concat(opts.zero ? [0] : []);
+    let lo = Math.min(...all), hi = Math.max(...all); const pad = (hi - lo) * 0.08 || 1; lo -= pad; hi += pad;
+    if (opts.floor0 && lo < 0 && Math.min(...series.flat()) >= 0) lo = 0;
+    const X = i => L + (n <= 1 ? 0 : i * (W - L - R) / (n - 1));
+    const Y = v => T + (hi - v) / (hi - lo) * (H - T - B);
+    const pts = arr => arr.map((v, i) => X(i).toFixed(1) + ',' + Y(v).toFixed(1)).join(' ');
+    const yTicks = this.niceTicks(lo, hi).map(v => ({ y: Y(v).toFixed(1), ty: (Y(v) + 4).toFixed(1), label: opts.fy(v) }));
+    const every = Math.ceil(n / (opts.maxX || 9));
+    const xTicks = []; for (let i = 0; i < n; i += every) xTicks.push({ x: X(i).toFixed(1), label: opts.fx(i) });
+    const pick = (e) => { const r = e.currentTarget.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width * W; const i = Math.max(0, Math.min(n - 1, Math.round((x - L) / ((W - L - R) / Math.max(1, n - 1))))); this.setHover(name, i); };
+    const onKey = (e) => {
+      const cur = this.state.hover[name] == null ? (opts.start || 0) : this.state.hover[name];
+      if (e.key === 'ArrowRight') { e.preventDefault(); this.setHover(name, Math.min(n - 1, cur + 1)); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); this.setHover(name, Math.max(0, cur - 1)); }
+      else if (e.key === 'Escape') this.setHover(name, null);
+    };
+    return { X, Y, pts, yTicks, xTicks, onMove: pick, onLeave: () => this.setHover(name, null), onKey, zeroY: Y(0).toFixed(1), hov: this.state.hover[name] };
+  }
+
+  describeCall(model, name, a) {
+    const F = window.PLFmt, nm = i => (model.items[i] ? model.items[i].name : 'item ' + i);
+    const TL = { chain: 'all stores', low: 'low-price zone', medium: 'medium-price zone', high: 'high-price zone' };
+    const tier = TL[a.tier || 'chain'];
+    if (name === 'simulate_price_change') return (a.changes || []).map(c => `${nm(c.item)} ${c.change_pct > 0 ? '+' : ''}${c.change_pct}%`).join(', ') + ` · 1 week · ${tier}`;
+    if (name === 'simulate_promotion') { const D = { none: 'price cut only', bonus: 'shelf tag', advertised: 'advertised' }; const w = a.weeks || 1; return `${(a.items || []).map(nm).join(' + ')} · ${a.depth_pct}% off · ${w} week${w > 1 ? 's' : ''} · ${D[a.deal || 'advertised']} · supplier pays ${a.funding_pct || 0}% · ${tier}`; }
+    return `moves up to ±${a.max_change_pct ?? 10}% · margin at least ${a.min_margin_pct ?? 0}% · revenue at least ${a.revenue_floor_pct ?? 0}% · ${tier}`;
+  }
+  patchMsg(id, p) { this.setState(s => ({ msgs: s.msgs.map(m => (m.id === id ? { ...m, ...p } : m)) })); }
+  async ask(raw) {
+    const q = String(raw ?? this.state.askInput).trim().slice(0, 400);
+    if (!q || this.state.askBusy || !(window.claude && window.claude.complete)) return;
+    const now = Date.now(); this._times = (this._times || []).filter(t => now - t < 60000);
+    if (this._times.length >= 5) { const w = Math.ceil((60000 - (now - this._times[0])) / 1000); this.setState({ askNote: `Too many questions in a minute. Try again in ${w} seconds.` }); return; }
+    this._times.push(now);
+    const E = window.PLEngine, model = this.model(), code = this.state.code, id = now;
+    const history = this.state.msgs.filter(m => m.status === 'done').slice(-3).flatMap(m => [{ role: 'user', content: m.q }, { role: 'assistant', content: m.answer }]);
+    this.setState(s => ({ askBusy: true, askInput: '', askNote: null, clearedFor: null, msgs: [...s.msgs, { id, q, status: 'waiting', calls: [] }] }));
+    const calls = [], sources = [E.describeCategory(model)];
+    const tools = E.TOOL_SPECS.map(t => ({ name: t.name, description: t.description, input_schema: t.input_schema, run: async (input) => {
+      const out = E.runTool(model, t.name, input);
+      calls.push({ label: t.label, detail: this.describeCall(model, t.name, input || {}) }); sources.push(out);
+      if (this.state.code === code) this.patchMsg(id, { calls: [...calls] });
+      return JSON.stringify(out);
+    } }));
+    try {
+      const text = await window.claude.complete({ system: E.SYSTEM_PROMPT + '\n\n' + E.describeCategory(model), messages: [...history, { role: 'user', content: q }], tools, max_tokens: 700 });
+      if (this.state.code !== code) return;
+      const answer = String(text || '').trim();
+      const v = E.verifyNumbers(answer, sources);
+      this.patchMsg(id, { status: 'done', answer, calls: [...calls], checked: v.checked, unsupported: v.unsupported });
+    } catch (e) {
+      if (this.state.code !== code) return;
+      const msg = String((e && e.message) || e);
+      if (/rate|429|limit/i.test(msg)) { this.setState(s => ({ msgs: s.msgs.filter(m => m.id !== id), askNote: 'Too many questions in a minute. Wait a moment and ask again.' })); }
+      else this.patchMsg(id, { status: 'failed', error: msg });
+    } finally { this.setState({ askBusy: false }); }
+  }
+
+  renderVals() {
+    const E = window.PLEngine, F = window.PLFmt, s = this.state;
+    const INDEX = s.index || [{ code: 'tna', name: 'Canned tuna', medianApe: 0.179, medianApeNaive: 0.225 }, { code: 'bjc', name: 'Bottled juices', medianApe: 0.2, medianApeNaive: 0.372 }, { code: 'lnd', name: 'Laundry detergents', medianApe: 0.19, medianApeNaive: 0.581 }, { code: 'sdr', name: 'Soft drinks', medianApe: 0.685, medianApeNaive: 1.803 }];
+    const TABS = [['prices', 'Change prices'], ['promo', 'Plan a promotion'], ['best', 'Find best prices'], ['delivery', 'Free delivery'], ['ask', 'Ask the Lab'], ['method', 'How it works']];
+    const tabs = TABS.map(([id, label], i) => ({ label, num: String(i + 1), sel: s.tab === id ? 'true' : 'false', bg: s.tab === id ? '#F4F3EF' : 'transparent', fg: s.tab === id ? '#16181D' : '#C9CCD3', onClick: () => this.setTab(id) }));
+    const cats = INDEX.map(r => { const weak = r.medianApe > 0.3, on = r.code === s.code; return { name: r.name, status: weak ? 'Direction only' : 'Forecast checked', glyph: weak ? '◐' : '✓', miss: 'typical miss ' + F.pct(r.medianApe), statusColor: weak ? '#8A5A00' : '#1F7A4D', sel: on ? 'true' : 'false', bg: on ? '#fff' : 'transparent', border: on ? '#16181D' : '#DCDAD3', onClick: () => this.setCode(r.code) }; });
+    const TIERS = [['chain', 'All stores', 83], ['low', 'Low-price zone', 8], ['medium', 'Medium-price zone', 53], ['high', 'High-price zone', 22]];
+    const row = INDEX.find(r => r.code === s.code) || INDEX[0];
+    const weak = row.medianApe > 0.3;
+    const model = this.model();
+    const ready = !!(E && model);
+    const toolTab = ['prices', 'promo', 'best', 'ask'].includes(s.tab);
+    const base = {
+      tabs, cats, tier: s.tier, tierOpts: TIERS.map(t => ({ v: t[0], label: `${t[1]} · ${t[2]} stores` })),
+      onTier: e => { const tier = e.target.value; this.setState({ tier }); this.save({ tier }); },
+      showWeak: weak && toolTab,
+      weakText: `${row.name} failed the forecast check: predictions for weeks the model never saw missed by ${F.pct(row.medianApe)} in a typical week. Read results as up or down, not as dollar amounts.`,
+      goMethod: e => { e.preventDefault(); this.setTab('method'); },
+      showLoading: s.tab !== 'delivery' && !ready && !s.loadErr, loadingText: `Loading ${row.name}…`,
+      showError: s.tab !== 'delivery' && !!s.loadErr && !model,
+      errorTitle: `Couldn't load ${row.name}`, errorText: `The category data didn't arrive (${s.loadErr ? s.loadErr.msg : ''}). Check your connection and try again, or pick another category.`,
+      retryLoad: () => this.load(s.code), backToTuna: () => this.setCode('tna'),
+      show: { prices: ready && s.tab === 'prices', promo: ready && s.tab === 'promo', best: ready && s.tab === 'best', delivery: !!E && s.tab === 'delivery', ask: ready && s.tab === 'ask', method: ready && s.tab === 'method' },
+    };
+    if (!E) return base;
+    const out = { ...base, d: this.deliveryVals(), dv: null };
+    out.dv = out.d.v;
+    if (!model) return out;
+    const items = model.items, k = items.length, hasLines = (model.lines || []).length > 0;
+
+    // 1 Change prices
+    if (s.tab === 'prices') {
+      const prices = s.priceMap[s.code] || items.map(it => it.price);
+      const pr = this.memo('pr', [s.code, s.tier, s.weeks, prices.join(',')].join('|'), () => E.simulatePrices(model, prices, s.tier, s.weeks));
+      const changed = prices.some((p, i) => Math.abs(p - items[i].price) > 0.004);
+      const H = [{ v: 1, label: '1 week' }, { v: 4, label: '4 weeks' }, { v: 13, label: 'A quarter' }, { v: 52, label: 'A year' }];
+      const lines = E.priceLines(model, s.link);
+      out.pv = this.vd(E.priceVerdict(pr, changed));
+      out.p = {
+        changed, empty: !changed, horizonLabel: H.find(h => h.v === s.weeks).label.toLowerCase(),
+        hero: this.kpi('Profit', pr.delta.profit, F.sMoney, F.money(pr.baseline.profit.p50)),
+        chance: F.pct(pr.probProfitUp), chanceSub: `Profit was higher in ${Math.round(pr.probProfitUp * 400)} of 400 runs`,
+        kpis: [this.kpi('Revenue change', pr.delta.revenue, F.sMoney, F.money(pr.baseline.revenue.p50)), this.kpi('Units change', pr.delta.units, F.sCount, F.count(pr.baseline.units.p50) + ' units')],
+        horizons: this.seg(H, s.weeks, v => this.setState({ weeks: v })),
+        hasLines, link: s.link, toggleLink: e => this.setState({ link: e.target.checked }),
+        reset: () => this.setState(st => ({ priceMap: { ...st.priceMap, [st.code]: items.map(it => it.price) } })),
+        resetDisabled: !changed, resetBorder: changed ? '#16181D' : '#E2E0DA', resetColor: changed ? '#16181D' : '#A3A6AD',
+        rows: items.map((it, i) => {
+          const r = pr.items[i], moved = Math.abs(prices[i] - it.price) > 0.004, be = r.breakEvenUnitsChangePct, u = r.unitsChangePct.p50, pf = r.profitChange.p50;
+          const note = !moved ? '—' : !isFinite(be) ? 'Sells below cost' : be < 0 ? `Can lose up to ${F.pct(-be)} of volume` : `Needs ${F.pct(be)} more volume`;
+          return { name: it.name, price: F.price(prices[i]), bg: moved ? '#F5F7FD' : '#fff', weight: moved ? 600 : 400, units: `${F.arrow(u, 0.0005)} ${F.sPct(u)}`, unitsColor: F.tone(u, 0.0005), profit: `${F.arrow(pf, 0.5)} ${F.sMoney(pf)}`, profitColor: F.tone(pf, 0.5), note, noteColor: !isFinite(be) && moved ? '#B4361F' : '#16181D' };
+        }),
+        cards: items.map((it, i) => {
+          const p = prices[i], lo = Math.floor(Math.min(it.priceMin, it.price * 0.75) * 100) / 100, hi = Math.ceil(Math.max(it.priceMax, it.price * 1.25) * 100) / 100;
+          const pos = v => ((v - lo) / (hi - lo) * 100).toFixed(2) + '%';
+          const off = p < it.priceMin - 0.004 || p > it.priceMax + 0.004, moved = Math.abs(p - it.price) > 0.004, below = p <= it.cost, ch = p / it.price - 1;
+          const grp = lines.find(g => g.includes(i)) || [i];
+          return {
+            name: it.name, price: F.price(p), was: F.price(it.price), cost: F.price(it.cost),
+            chg: moved ? `${F.arrow(ch)} ${F.sPct(ch)}` : 'No change', chgColor: moved ? '#16181D' : '#5F6368',
+            costLine: `Cost ${F.price(it.cost)} · Margin ${F.pct((p - it.cost) / p)}`,
+            histLine: `charged ${F.price(it.priceMin)}–${F.price(it.priceMax)} in 2 yrs`, loStr: F.price(lo), hiStr: F.price(hi),
+            lo, hi, value: p, bandL: pos(it.priceMin), bandW: ((it.priceMax - it.priceMin) / (hi - lo) * 100).toFixed(2) + '%', todayL: pos(it.price),
+            off, below, linked: grp.length > 1, linkText: `Moves with ${grp.filter(j => j !== i).map(j => items[j].name).join(', ')}`,
+            bg: below ? '#FFF8F6' : off ? '#FFFBEF' : '#fff', border: below ? '#B4361F' : off ? '#C99A2E' : moved ? '#16181D' : '#E2E0DA',
+            minus: () => this.move(i, p - 0.01), plus: () => this.move(i, p + 0.01), slide: e => this.move(i, Number(e.target.value)),
+            minusLabel: `Lower ${it.name} by 1 cent`, plusLabel: `Raise ${it.name} by 1 cent`, sliderLabel: `Price of ${it.name}`,
+          };
+        }),
+      };
+    }
+
+    // 2 Promotion
+    if (s.tab === 'promo') {
+      const P = s.promo, item = Math.min(P.item, k - 1), line = (model.lines || []).find(g => g.includes(item));
+      const promoItems = line && P.wholeLine ? line : [item];
+      const r = this.memo('promo', [s.code, s.tier, promoItems.join('.'), P.depth, P.weeks, P.deal, P.funding].join('|'), () => E.simulatePromo(model, promoItems, P.depth / 100, P.weeks, P.deal, P.funding / 100, s.tier));
+      const it = items[item], after = it.price * (1 - P.depth / 100);
+      const parts = [['Promotion weeks', r.profitParts.promoWeeks], ['Dip the week after', r.profitParts.dip], ['Sales lost on other products', r.profitParts.cannibalisation], ['Net', r.profit]];
+      let lo = Math.min(0, ...parts.map(x => x[1].p10)), hi = Math.max(0, ...parts.map(x => x[1].p90)); const sp = (hi - lo) || 1; lo -= sp * 0.06; hi += sp * 0.06;
+      const P2 = v => ((v - lo) / (hi - lo) * 100).toFixed(2) + '%';
+      const ticks = this.niceTicks(lo, hi, 4).map(v => ({ x: P2(v), label: F.money(v) }));
+      const hov = s.partHover;
+      const DEALS = [{ v: 'none', label: 'Price cut only', sub: 'New price on the shelf, nothing else' }, { v: 'bonus', label: 'Shelf tag', sub: 'A deal tag next to the product' }, { v: 'advertised', label: 'Advertised', sub: 'In the weekly flyer' }];
+      const need = r.breakEvenFunding.p50;
+      out.mv = this.vd(E.promoVerdict(r, P.funding / 100));
+      out.m = {
+        item, setItem: e => this.setPromo({ item: Number(e.target.value) }), itemOpts: items.map((x, i) => ({ v: i, label: x.name })),
+        hasLine: !!line, wholeLine: P.wholeLine, toggleLine: e => this.setPromo({ wholeLine: e.target.checked }),
+        lineLabel: line ? `Promote its whole price line (${line.length} products)` : '',
+        lineCaution: !!line && !P.wholeLine, lineCautionText: line ? `${line.map(j => items[j].name).join(', ')} were never discounted separately in the data, so promoting one alone is outside what the model has seen.` : '',
+        depth: P.depth, depthLabel: `${P.depth}% off`, setDepth: e => this.setPromo({ depth: Number(e.target.value) }), before: F.price(it.price), after: F.price(after),
+        lengths: this.seg([1, 2, 3, 4].map(v => ({ v, label: v === 1 ? '1 week' : v + ' weeks' })), P.weeks, v => this.setPromo({ weeks: v })),
+        deals: this.seg(DEALS, P.deal, v => this.setPromo({ deal: v })),
+        funding: P.funding, fundLabel: `${P.funding}% of the discount`, setFunding: e => this.setPromo({ funding: Number(e.target.value) }),
+        hero: this.kpi('Net', r.profit, F.sMoney, ''), chance: F.pct(r.probProfitable),
+        lift: F.sPct(r.liftPct.p50, 0), liftLo: F.sPct(r.liftPct.p10, 0), liftHi: F.sPct(r.liftPct.p90, 0), liftArrow: F.arrow(r.liftPct.p50), liftColor: F.tone(r.liftPct.p50),
+        need: need > 1 ? 'Over 100%' : F.pct(need), needSub: need <= P.funding / 100 + 1e-9 ? `Current funding (${P.funding}%) already covers it` : `Up from ${P.funding}% now`,
+        liftNeed: r.breakEvenLiftPct === null ? 'At this funding every promoted unit sells below cost' : `Or a ${F.pct(r.breakEvenLiftPct)} sales lift at current funding`,
+        belowCost: r.promoMarginPerUnit.some(x => x <= 0), belowText: `At ${P.depth}% off with ${P.funding}% supplier funding the promoted price is below cost, so more volume makes the loss bigger.`,
+        ticks, gridX: ticks.map(t => t.x), zero: P2(0), off: () => this.setState({ partHover: null }),
+        parts: parts.map(([label, S], i) => {
+          const z = (0 - lo) / (hi - lo) * 100, m = (S.p50 - lo) / (hi - lo) * 100, net = i === 3;
+          return { label, mid: F.sMoney(S.p50), color: F.tone(S.p50, 0.5), font: net ? '600 14px Geist' : '400 14px Geist', sep: net ? '1.5px solid #16181D' : '0', hl: hov === i ? '#F4F3EF' : 'transparent',
+            bl: Math.min(z, m).toFixed(2) + '%', bw: Math.abs(m - z).toFixed(2) + '%', fill: S.p50 >= 0 ? '#2F5BD3' : '#D9705A', wl: P2(S.p10), wr: P2(S.p90), ww: ((S.p90 - S.p10) / (hi - lo) * 100).toFixed(2) + '%',
+            aria: `${label}: ${F.sMoney(S.p50)}, likely ${F.sMoney(S.p10)} to ${F.sMoney(S.p90)}`, on: () => this.setState({ partHover: i }) };
+        }),
+        readout: hov == null ? 'Hover or tab to a row for its exact range.' : `${parts[hov][0]}: ${F.sMoney(parts[hov][1].p50)} in the middle, likely ${F.sMoney(parts[hov][1].p10)} to ${F.sMoney(parts[hov][1].p90)}.`,
+        units: [['Extra units during the promotion', r.incrementalUnits], ['Units lost in the dip afterwards', r.dipUnits], ['Units other products lose or gain', r.cannibalisedUnits], ['Net units for the category', r.netUnits]].map(([label, S], i) => ({ label, value: `${F.arrow(S.p50, 0.5)} ${F.sCount(S.p50)}`, color: F.tone(S.p50, 0.5), weight: i === 3 ? 600 : 400 })),
+      };
+    }
+
+    // 3 Best prices
+    if (s.tab === 'best') {
+      const O = s.opt, r = s.optRes, key = this.optKeyOf(s), fresh = !!r && s.optKey === key, valid = !!r && s.optKey.split('|')[0] === s.code;
+      const o = { ready: valid, first: !valid, busy: valid && !fresh ? 'true' : 'false', busyOpacity: valid && !fresh ? 1 : 0, maxChange: O.maxChange, minMargin: O.minMargin, floor: O.floor, hasLines, link: O.link,
+        setMax: e => this.setOpt({ maxChange: Number(e.target.value) }), setMargin: e => this.setOpt({ minMargin: Number(e.target.value) }), setFloor: e => this.setOpt({ floor: Number(e.target.value) }),
+        toggleLink: e => this.setOpt({ link: e.target.checked }), heldText: O.locked.length ? `${O.locked.length} held.` : '', hlMove: 'none', hlMargin: 'none', hlFloor: 'none' };
+      if (valid) {
+        const v = E.optimizerVerdict(r), moved = r.changePct.filter(c => Math.abs(c) > 1e-6).length;
+        o.infeasible = !r.feasible; o.leave = r.feasible && !moved; o.showKpis = r.feasible && moved > 0; o.dim = valid && !fresh ? 0.55 : 1;
+        out.ov = this.vd(v);
+        if (!r.feasible) {
+          const fl = s.optHints && s.optHints.floorOk;
+          out.ov.reason = `No set of prices meets all three limits at once.`;
+          o.conflict = `A ${O.minMargin}% minimum margin pushes prices up so far that revenue falls below the ${O.floor}% you asked to keep. Loosen "Lowest margin allowed"${fl ? ` or lower "Revenue to keep"` : ''}.`;
+          o.hlMargin = '2px solid #B4361F'; o.hlFloor = fl ? '2px solid #B4361F' : 'none';
+          o.fixes = [{ label: `Lower margin to ${Math.max(0, O.minMargin - 10)}%`, onClick: () => this.setOpt({ minMargin: Math.max(0, O.minMargin - 10) }) }].concat(fl ? [{ label: 'Keep 80% of revenue', onClick: () => this.setOpt({ floor: 80 }) }] : []);
+        }
+        o.hero = this.kpi('Weekly profit', r.delta.profit, F.sMoney, F.money(r.expected.baselineProfit));
+        o.rev = F.sMoney(r.delta.revenue.p50); o.revArrow = F.arrow(r.delta.revenue.p50, 0.5); o.revColor = F.tone(r.delta.revenue.p50, 0.5);
+        o.revShare = F.pct(r.expected.revenue / r.expected.baselineRevenue, 1); o.chance = F.pct(r.probProfitUp);
+        o.applyDisabled = !r.feasible || !moved; o.applyBg = o.applyDisabled ? '#A3A6AD' : '#16181D';
+        o.apply = () => { this.setState(st => ({ priceMap: { ...st.priceMap, [st.code]: r.prices.map(p => Math.round(p * 100) / 100) }, link: O.link })); this.setTab('prices'); };
+        o.rows = items.map((it, i) => {
+          const st = r.atBound[i], ch = r.changePct[i], held = O.locked.includes(i);
+          const L = st === 'fixed' ? ['▣', 'Held', '#F4F3EF', '#CFCCC4', '#16181D'] : r.probInelastic[i] >= 0.2 ? ['≈', 'Weak evidence: price barely moved in the data', '#FFF4D6', '#E7CF8E', '#3D2B00'] : st !== 'none' ? ['⇥', 'Stopped at your limit', '#EEF2FC', '#C9D5F5', '#1D3E9E'] : ['◎', 'Best price is inside your limits', '#E6F2EA', '#B9DBC5', '#14532F'];
+          return { name: it.name, today: F.price(it.price), rec: F.price(r.prices[i]), change: Math.abs(ch) < 0.0005 ? 'No change' : `${F.arrow(ch)} ${F.sPct(ch)}`, glyph: L[0], label: L[1], pillBg: L[2], pillBorder: L[3], pillFg: L[4], held, holdLabel: `Hold ${it.name} at today's price`,
+            toggle: () => this.setOpt({ locked: held ? O.locked.filter(x => x !== i) : [...O.locked, i] }) };
+        });
+      }
+      out.o = o;
+      if (!out.ov) out.ov = { glyph: '•', fg: '#5F6368', bg: '#fff', label: '', title: '', reason: '' };
+    }
+
+    // 5 Ask
+    if (s.tab === 'ask') {
+      const off = !(window.claude && window.claude.complete);
+      const st = [`What happens to profit if ${items[0].name} goes up 5%?`, `Is 25% off ${items[Math.min(3, k - 1)].name} for one week worth it?`, `Would a two-week shelf-tag deal at 15% off ${items[Math.min(6, k - 1)].name} make money?`];
+      const catName = model.name;
+      out.a = {
+        cat: catName, off, disabled: off || s.askBusy, showStarters: s.msgs.length === 0,
+        starters: st.map(text => ({ text, onClick: () => this.ask(text) })),
+        cleared: !!s.clearedFor && s.msgs.length === 0, clearedText: `Conversation cleared because you switched to ${catName}.`,
+        hasNote: !!s.askNote, note: s.askNote || '',
+        msgs: s.msgs.map(m => ({
+          q: m.q, waiting: m.status === 'waiting', waitText: m.calls.length ? 'Reading the tool results…' : 'Thinking about which tool to run…',
+          done: m.status === 'done', answer: m.answer || '', failed: m.status === 'failed', failText: 'The request failed. Nothing was saved.',
+          retry: () => { this.setState(st2 => ({ msgs: st2.msgs.filter(x => x.id !== m.id) })); setTimeout(() => this.ask(m.q), 0); },
+          hasCalls: m.calls.length > 0, calls: m.calls,
+          ok: m.status === 'done' && !(m.unsupported || []).length, okText: m.checked ? `All ${m.checked} numbers traced to a tool result` : 'No numbers to trace in this answer',
+          warn: m.status === 'done' && (m.unsupported || []).length > 0, warnText: `Check these numbers: ${(m.unsupported || []).join(', ')}`,
+        })),
+        input: s.askInput, count: s.askInput.length, onInput: e => this.setState({ askInput: e.target.value.slice(0, 400) }),
+        onKey: e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.ask(); } },
+        onSubmit: e => { e.preventDefault(); this.ask(); },
+        placeholder: off ? 'The assistant is switched off' : `Ask about ${catName.toLowerCase()} prices or promotions…`,
+        sendDisabled: off || s.askBusy || !s.askInput.trim(), sendBg: off || s.askBusy || !s.askInput.trim() ? '#A3A6AD' : '#16181D', sendLabel: s.askBusy ? 'Asking…' : 'Ask',
+      };
+    }
+
+    // 6 Method
+    if (s.tab === 'method') out.h = this.methodVals(model, INDEX);
+    return out;
+  }
+
+  deliveryVals() {
+    const E = window.PLEngine, F = window.PLFmt, x = this.state.dl;
+    const thresholds = Array.from({ length: 17 }, (_, i) => Math.round((x.avgBasket * (0.4 + i * 0.15)) / 5) * 5).filter((t, i, a) => t > 0 && a.indexOf(t) === i);
+    const res = this.memo('dl', JSON.stringify(x), () => E.evaluateThresholds(x, thresholds));
+    const best = E.bestThreshold(res), bi = res.indexOf(best), n = res.length;
+    const g = this.chart('dl', n, [res.map(r => r.profitDelta.p10), res.map(r => r.profitDelta.p90)], { h: 260, b: 30, zero: true, fy: v => F.money(v), fx: i => '$' + res[i].threshold, maxX: 9, start: bi });
+    const band = res.map((r, i) => g.X(i).toFixed(1) + ',' + g.Y(r.profitDelta.p90).toFixed(1)).concat(res.map((r, i) => g.X(i).toFixed(1) + ',' + g.Y(r.profitDelta.p10).toFixed(1)).reverse()).join(' ');
+    const hi = g.hov == null ? bi : g.hov, h = res[hi];
+    const bx = g.X(bi), by = g.Y(best.profitDelta.p50);
+    const sl = (label, key, min, max, step, show, scale = 1) => ({ label, min, max, step, value: x[key] * scale, show, onChange: e => this.setDl({ [key]: Number(e.target.value) / scale }) });
+    const rng = (label, key, max, step, hint) => {
+      const [a, b] = x[key];
+      return { label, show: `${F.pct(a)} to ${F.pct(b)}`, max, step, lo: a * 100, hi: b * 100, l: (a * 100 / max * 100).toFixed(1) + '%', w: ((b - a) * 100 / max * 100).toFixed(1) + '%', hint, loLabel: label + ', low value', hiLabel: label + ', high value',
+        setLo: e => { const v = Number(e.target.value) / 100; this.setDl({ [key]: [v, Math.max(v, this.state.dl[key][1])] }); },
+        setHi: e => { const v = Number(e.target.value) / 100; this.setDl({ [key]: [Math.min(v, this.state.dl[key][0]), v] }); } };
+    };
+    const v = E.deliveryVerdict(best);
+    const vv = this.vd(v, v.headline);
+    return {
+      v: vv,
+      best: '$' + best.threshold, shareFree: F.pct(best.shareFree), mid: F.sMoney(best.profitDelta.p50), lo: F.sMoney(best.profitDelta.p10), hi: F.sMoney(best.profitDelta.p90),
+      arrow: F.arrow(best.profitDelta.p50, 0.5), color: F.tone(best.profitDelta.p50, 0.5), beats: F.pct(best.probBetter),
+      g: { yTicks: g.yTicks, xTicks: g.xTicks, zeroY: g.zeroY, band, mid: g.pts(res.map(r => r.profitDelta.p50)) },
+      bestX: bx.toFixed(1), bestRx: (bx - 5.5).toFixed(1), bestRy: (by - 5.5).toFixed(1), bestRot: `rotate(45 ${bx.toFixed(1)} ${by.toFixed(1)})`,
+      hx: g.X(hi).toFixed(1), hy: g.Y(h.profitDelta.p50).toFixed(1), hOp: g.hov == null ? 0 : 1,
+      onMove: g.onMove, onLeave: g.onLeave, onKey: g.onKey,
+      chartLabel: `Profit change per 1,000 orders by free-delivery threshold. Best threshold $${best.threshold}. Use left and right arrow keys to read values.`,
+      readout: `${hi === bi ? 'Best · ' : ''}Free above $${h.threshold}: ${F.sMoney(h.profitDelta.p50)} per 1,000 orders, likely ${F.sMoney(h.profitDelta.p10)} to ${F.sMoney(h.profitDelta.p90)}. ${F.pct(h.shareFree)} ship free; beats the flat fee in ${F.pct(h.probBetter)} of cases.`,
+      biz: [sl('Average order value', 'avgBasket', 10, 200, 5, F.money(x.avgBasket))],
+      spreads: this.seg([{ v: 0.35, label: 'Similar sizes' }, { v: 0.6, label: 'Mixed' }, { v: 1.0, label: 'Very mixed' }], x.basketSpread, val => this.setDl({ basketSpread: val })),
+      biz2: [sl('Margin on goods', 'marginPct', 5, 70, 1, F.pct(x.marginPct), 100), sl('Cost of one delivery', 'deliveryCost', 1, 20, 0.5, F.price(x.deliveryCost)), sl('Delivery fee', 'fee', 0, 15, 0.5, F.price(x.fee))],
+      reach: F.pct(x.reachPct), reachV: x.reachPct * 100, setReach: e => this.setDl({ reachPct: Number(e.target.value) / 100 }),
+      ranges: [rng('Share of those that top up', 'topUp', 100, 5, 'Of the orders within reach, how many add items to qualify'), rng('Extra orders from big baskets', 'extraOrders', 50, 1, 'Shoppers who would have abandoned the cart because of the fee')],
+    };
+  }
+
+  methodVals(model, INDEX) {
+    const F = window.PLFmt, s = this.state, items = model.items, k = items.length, v = model.validation;
+    const blk = id => () => { const el = document.getElementById('blk-' + id); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 12, behavior: 'smooth' }); };
+    const toc = [['A', 'The model in four sentences'], ['B', 'Does it predict unseen weeks?'], ['C', 'Price sensitivity'], ['D', 'Who takes sales from whom'], ['E', 'Is price just following demand?'], ['F', 'What this cannot tell you']].map(([id, label]) => ({ id, label, onClick: blk(id) }));
+    const item = Math.min(s.methodItem, k - 1), series = v.series.find(x => x.item === item) || v.series[0], n = series.week.length;
+    const g = this.chart('ho', n, [series.actual, series.pred], { h: 240, b: 30, floor0: true, fy: x => F.count(x), fx: i => 'wk ' + series.week[i], maxX: 7 });
+    const hi = g.hov;
+    const cross = this.memo('cross', model.code, () => Array.from({ length: k }, (_, i) => Array.from({ length: k }, (_, j) => { let t = 0; for (let d = 0; d < model.draws.n; d++) t += model.draws.cross[d][i][j]; return t / model.draws.n; })));
+    let maxAbs = 0; cross.forEach((r, i) => r.forEach((x, j) => { if (i !== j) maxAbs = Math.max(maxAbs, Math.abs(x)); }));
+    const cells = [], hc = s.heatCell;
+    const effect = (e) => Math.exp(e * Math.log(0.9)) - 1;
+    for (let i = 0; i < k; i++) {
+      cells.push({ head: true, n: String(i + 1), name: items[i].name });
+      for (let j = 0; j < k; j++) {
+        if (i === j) { cells.push({ diag: true }); continue; }
+        const x = cross[i][j], a = maxAbs ? Math.abs(x) / maxAbs : 0, on = hc && hc[0] === i && hc[1] === j;
+        cells.push({ cell: true, v: (x > 0 ? '+' : x < 0 ? '−' : '') + Math.abs(x).toFixed(2), bg: x >= 0 ? `rgba(47,91,211,${(0.06 + a * 0.6).toFixed(2)})` : `rgba(196,98,45,${(0.06 + a * 0.55).toFixed(2)})`, fg: a > 0.6 ? '#fff' : '#16181D', border: on ? '2px solid #16181D' : '0',
+          aria: `${items[i].name} versus ${items[j].name}: ${x.toFixed(2)}`, on: () => this.setState({ heatCell: [i, j] }) });
+      }
+    }
+    let heatRead = 'Pick a cell to read it as a sentence.';
+    if (hc) { const [i, j] = hc, e = effect(cross[i][j]); heatRead = `When ${items[j].name} gets 10% cheaper, ${items[i].name} sells ${Math.abs(e * 100).toFixed(1)}% ${e < 0 ? 'less' : 'more'}.`; }
+    const lines = model.lines || [];
+    // elasticities
+    const vals = items.flatMap(it => [it.elasticity.regular[0], it.elasticity.regular[2], it.stage1.regular]).concat([-1, 0]);
+    let lo = Math.min(...vals), hiV = Math.max(...vals); const sp = hiV - lo; lo -= sp * 0.05; hiV += sp * 0.05;
+    const P = x => ((x - lo) / (hiV - lo) * 100).toFixed(2) + '%';
+    const eh = s.elHover;
+    const ticks = this.niceTicks(lo, hiV, 5).map(x => ({ x: P(x), label: (x < 0 ? '−' : '') + Math.abs(x).toFixed(Number.isInteger(x) ? 0 : 1), color: x === -1 ? '#B4361F' : '#5F6368' }));
+    const strong = items.filter(it => it.endogeneity.firstStageF >= 10);
+    const gap = strong.length ? strong.reduce((a, it) => a + it.endogeneity.iv - it.endogeneity.ols, 0) / strong.length : 0;
+    let take = `The instrument is usable for ${strong.length} of ${k} products.`;
+    if (strong.length && Math.abs(gap) >= 0.3) take += ` For those, shoppers look ${Math.abs(gap).toFixed(1)} points ${gap < 0 ? 'more' : 'less'} price-sensitive once instrumented, so the simulator probably ${gap < 0 ? 'understates' : 'overstates'} how much volume a price rise costs here.`;
+    else if (strong.length) take += ' For those, the plain and instrumented estimates agree closely, so price is not just following demand.';
+    else take += ' Without a usable instrument, the plain estimates cannot be checked this way.';
+    const d = model.diagnostics;
+    return {
+      cat: model.name, toc,
+      four: [
+        `For each product, weekly units in each store are explained by its regular price, how deep any discount is, whether the deal was advertised, last week's discount, and the prices of the other ${k - 1} products on the shelf.`,
+        `That gives one set of estimates per product, fitted on ${F.count(d.rows)} product-store-weeks from ${d.stores} stores.`,
+        'A second, Bayesian step treats each estimate as a noisy reading and pools products within the category: precise estimates barely move, implausible ones are pulled toward their neighbours.',
+        'It returns 400 plausible versions of the whole demand system, and every result in this app is computed once per version, which is where the ranges come from.',
+      ],
+      holdout: v.holdoutWeeks,
+      cats: INDEX.map(r => { const fail = r.medianApe > 0.3, on = r.code === model.code; return { name: r.name, miss: F.pct(r.medianApe), bench: F.pct(r.medianApeNaive), verdict: fail ? '✕ Fails: direction only' : '✓ Passes', pillBg: fail ? '#FBE5E0' : '#E6F2EA', pillBorder: fail ? '#E5A99B' : '#B9DBC5', pillFg: fail ? '#6B1D0E' : '#14532F', bg: on ? '#F5F7FD' : '#fff', weight: on ? 600 : 400 }; }),
+      item, setItem: e => this.setState({ methodItem: Number(e.target.value), hover: { ...this.state.hover, ho: null } }), itemOpts: items.map((x, i) => ({ v: i, label: x.name })),
+      g: { yTicks: g.yTicks, xTicks: g.xTicks, s0: g.pts(series.actual), s1: g.pts(series.pred) },
+      hx: g.X(hi == null ? 0 : hi).toFixed(1), hy0: g.Y(series.actual[hi == null ? 0 : hi]).toFixed(1), hy1: g.Y(series.pred[hi == null ? 0 : hi]).toFixed(1), hOp: hi == null ? 0 : 1,
+      onMove: g.onMove, onLeave: g.onLeave, onKey: g.onKey,
+      lineLabel: `Actual and predicted weekly units for ${items[item].name} over ${n} holdout weeks. Use arrow keys to read values.`,
+      readout: hi == null ? 'Hover, tap or use ← → on the chart for exact values.' : `Week ${series.week[hi]}: sold ${F.count(series.actual[hi])}, predicted ${F.count(series.pred[hi])} (${F.sPct(series.pred[hi] / series.actual[hi] - 1)}).`,
+      summary: `Across ${model.name}: weighted error ${F.pct(v.wapeModel)} (benchmark ${F.pct(v.wapeNaive)}), total volume ${v.biasModel < 0 ? 'under' : 'over'}-predicted by ${F.pct(Math.abs(v.biasModel))}, and ${F.pct(v.coverage80)} of weeks landed inside the predicted range. Weighted error is higher than the typical miss because a few advertised weeks sell ten to twenty times normal volume.`,
+      el: {
+        ticks, zero: P(0), ref: P(-1),
+        rows: items.map((it, i) => { const e = it.elasticity.regular; return { name: it.name, l: P(e[0]), w: ((e[2] - e[0]) / (hiV - lo) * 100).toFixed(2) + '%', m: P(e[1]), raw: P(it.stage1.regular), mid: e[1].toFixed(2).replace('-', '−'), hl: eh === i ? '#F4F3EF' : 'transparent',
+          aria: `${it.name}: pooled ${e[1].toFixed(2)}, range ${e[0].toFixed(2)} to ${e[2].toFixed(2)}, raw ${it.stage1.regular.toFixed(2)}`, on: () => this.setState({ elHover: i }) }; }),
+        readout: eh == null ? 'Hover or tab to a row for its exact values.' : (() => { const it = items[eh], e = it.elasticity.regular; return `${it.name}: a 1% price rise changes units by ${e[1].toFixed(2)}% after pooling (likely ${e[0].toFixed(2)} to ${e[2].toFixed(2)}); the raw estimate was ${it.stage1.regular.toFixed(2)}.`; })(),
+      },
+      heat: { cols: items.map((it, i) => ({ n: String(i + 1), name: it.name })), cells, readout: heatRead,
+        note: lines.length ? `Always discounted together: ${lines.map(gr => gr.map(i => items[i].name).join(' + ')).join('; ')}. The data can't separate these, so their negative numbers are not real complements, and the app treats each group as one price line.` : `No products in ${model.name} are always discounted together, so every product can be priced on its own.` },
+      endo: items.map(it => { const e = it.endogeneity, ok = e.firstStageF >= 10; return { name: it.name, ols: e.ols.toFixed(2).replace('-', '−'), iv: ok ? `${e.iv.toFixed(2).replace('-', '−')} ± ${e.ivSe.toFixed(2)}` : 'n/a', f: e.firstStageF.toFixed(0), label: ok ? '✓ Yes' : '≈ Weak instrument', pillBg: ok ? '#E6F2EA' : '#FFF4D6', pillBorder: ok ? '#B9DBC5' : '#E7CF8E', pillFg: ok ? '#14532F' : '#3D2B00' }; }),
+      endoTake: take,
+      limits: [
+        'Prices are from 1989 to 1997 in one Chicago chain. The method transfers; the numbers do not.',
+        'Baskets are invisible. A soft-drink deal that loses money may still be worth it if it brings shoppers into the store; this model only sees the category.',
+        'Weeks with zero sales are missing from the data, so stock-outs look like nothing happened.',
+        "Cost is the chain's average acquisition cost, which lags real wholesale prices, so margins after a cost change are approximate.",
+        `Prices outside the two-year range are extrapolation. The Bayesian step converged (worst R-hat ${d.maxRhat.toFixed(3)}, ${d.divergences} divergent transitions), but that says nothing about prices the chain never tried.`,
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>
